@@ -1,0 +1,19 @@
+﻿using App_Proyecto.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace App_Proyecto.DTOS
+{
+    public class CreatePermissionDto
+    {
+        
+        [Required(ErrorMessage ="El nombre es requerido")]
+        [MaxLength(150)]
+        [RegularExpression(@"^[a-z][a-z0-9._]*$",ErrorMessage ="Use el formato Recurso.accion")]
+
+        public string Name { get; set; }
+        [MaxLength(200)]
+        public string? Description { get; set; }
+        
+
+    }
+}

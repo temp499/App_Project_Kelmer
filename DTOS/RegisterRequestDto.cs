@@ -1,0 +1,10 @@
+namespace App_Proyecto.DTOS
+{
+    public class RegisterRequestDto
+    {
+        public required string UserName { get; set; }
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public int RoleId { get; set; } = 2;
+    }
+}

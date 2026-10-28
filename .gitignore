@@ -361,3 +361,46 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local secrets: publish only explicitly public environment templates
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+!.env.*.example
+!.env.*.template
+
+# Local configuration with credentials (keep shared appsettings files tracked)
+appsettings.Local.json
+appsettings.local.json
+appsettings.*.Local.json
+appsettings.*.local.json
+secrets.json
+secrets.*.json
+*.secrets.json
+connectionstrings.local.config
+web.local.config
+app.local.config
+
+# Local SQLite databases and companion files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+
+# Backup files and copied project directories
+*.bak
+*.backup
+[Bb]ackups/
+[Rr]espaldos/
+[Cc]opias_de_seguridad/
+*_backup*/
+*_respaldo*/
+*_backup*.zip
+*_respaldo*.zip

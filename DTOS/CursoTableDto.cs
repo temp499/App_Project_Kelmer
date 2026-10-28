@@ -1,14 +1,10 @@
-namespace App_Proyecto.DTOS
+﻿namespace App_Proyecto.DTOS
 {
     public class CursoTableDto
     {
-
         public int Id { get; set; }
-
         public string Nombre { get; set; } = string.Empty;
-
         public string? Descripcion { get; set; }
-
         public int TotalEstudiantes { get; set; }
 
     }

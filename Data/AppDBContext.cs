@@ -43,7 +43,7 @@ namespace App_Proyecto.Data
             modelBuilder.Entity<UsuarioPermission>()
                 .HasOne(Up => Up.Permission)
                 .WithMany(u => u.UsuarioPermissions)
-                .HasForeignKey(up => up.UsuarioId)
+                .HasForeignKey(up => up.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Estudiante>()

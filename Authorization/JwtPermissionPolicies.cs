@@ -9,9 +9,7 @@ namespace App_Proyecto.Authorization
         public class PermissionRequirement(string permission) : IAuthorizationRequirement
         {
             public string Permission { get; } = permission;
-            // "Product.Create"
-            // "Product.Edit"
-            // "Product.Delete"
+            // Ejemplos: curso.ver, permiso.crear, usuario.ver.
 
         }
 

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Registra los servicios de la aplicación.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty));
@@ -29,11 +29,11 @@ builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configura el flujo de solicitudes HTTP.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // HSTS indica al navegador que use HTTPS.
     app.UseHsts();
 }
 

@@ -394,6 +394,9 @@ app.local.config
 *.sqlite3-shm
 *.sqlite3-wal
 
+# Las migraciones se conservan localmente según el procedimiento de clase.
+**/Migrations/
+
 # Backup files and copied project directories
 *.bak
 *.backup

@@ -35,6 +35,9 @@ namespace App_Proyecto.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UsuarioPermission>()
+                .HasKey(up => new { up.UsuarioId, up.PermissionId });
+
+            modelBuilder.Entity<UsuarioPermission>()
                 .HasOne(Up => Up.Usuario)
                 .WithMany(u => u.UsuarioPermissions)
                 .HasForeignKey(up => up.UsuarioId)

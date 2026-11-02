@@ -11,7 +11,7 @@ namespace App_Proyecto.Repositories
         .Include(u => u.Rol)
         .ThenInclude(r => r.RolePermissions)
         .ThenInclude(rp => rp.Permission)
-        .ThenInclude(up => up.UsuarioPermissions)
+        .Include(u => u.UsuarioPermissions)
         .ThenInclude(up => up.Permission);
       
         public async  Task<bool> AssingPermissiontoUsuarioAsync(int usuarioId, int permissionId, bool isGranted)
@@ -113,10 +113,6 @@ namespace App_Proyecto.Repositories
         }
 
 
-        public Task<Usuario?> GetUsuarioByIdWithPermissionAsync(string email)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 

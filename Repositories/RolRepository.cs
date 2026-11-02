@@ -45,11 +45,6 @@ namespace App_Proyecto.Repositories
               .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public Task<Role?> GetByIdWithPermissionsAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Role?> GetByNameAsync(string name)
         {
             return await context.Roles.FirstOrDefaultAsync(r => r.Name == name);

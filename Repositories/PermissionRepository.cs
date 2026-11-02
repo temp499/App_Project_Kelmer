@@ -91,7 +91,7 @@ namespace App_Proyecto.Repositories
 
         public Task<bool> IsAssignedToUsuarioAsync(int permissionId)
         {
-            throw new NotImplementedException();
+            return context.UsuarioPermissions.AnyAsync(up => up.PermissionId == permissionId);
         }
 
         public async Task<bool> isAssingnedToUsuarioAsync(int permissionId)

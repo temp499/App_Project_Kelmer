@@ -9,7 +9,7 @@ namespace App_Proyecto.Repositories
     {
         Task<Usuario?> GetUsuarioByUserName(string userName);
         Task<Usuario?> GetUsuarioByEmail(string email);
-        Task<Usuario?> GetUsuarioByIdWithPermissionAsync(string email);
+        Task<Usuario?> GetUsuarioByIdWithPermissionAsync(int userId);
         Task<Usuario> CreateAsync(Usuario usuario);
         bool ValidatePassword(Usuario usuario, string password);
 

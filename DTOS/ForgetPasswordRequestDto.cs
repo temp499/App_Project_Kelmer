@@ -1,6 +1,6 @@
 ﻿namespace App_Proyecto.DTOS
 {
-    public class ForgetPasswordDto
+    public class ForgetPasswordRequestDto
     {
     
         public string Email { get; set; } = null!;

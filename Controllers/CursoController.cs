@@ -16,7 +16,8 @@ namespace App_Proyecto.Controllers
         }
         [Authorize(Policy = "curso.ver")]
         [HttpPost]
-        public async Task<IActionResult> GetData(DataTablesRequestDto request)
+        public async Task<IActionResult> GetData([FromForm]DataTablesRequestDto request)
+
         {
             var result = await cursoService.GetPagedAsync(request);
             return Ok(result);
@@ -36,7 +37,7 @@ namespace App_Proyecto.Controllers
 
         [Authorize(Policy = "curso.crear")]
         [HttpPost]
-        public async Task<IActionResult> Create(SaveCursoDto cursoDto)
+        public async Task<IActionResult> Create([FromBody]SaveCursoDto cursoDto)
         {
            if(!ModelState.IsValid)
             {
@@ -50,7 +51,7 @@ namespace App_Proyecto.Controllers
 
         [Authorize(Policy = "curso.actualizar")]
         [HttpPost]
-        public async Task<IActionResult> Update(SaveCursoDto cursoDto)
+        public async Task<IActionResult> Update([FromBody]SaveCursoDto cursoDto)
         {
             if (!ModelState.IsValid)
             {

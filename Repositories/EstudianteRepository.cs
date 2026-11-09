@@ -48,10 +48,10 @@ namespace App_Proyecto.Repositories
             var search = request.Search?.Value?.Trim();
             if (!string.IsNullOrWhiteSpace(search))
             {
-                query = query.Where(e => e.Nombre.Contains(search)
-                || e.Apellido.Contains(search) ||
-                e.Email.Contains(search) ||
-                e.Curso.Nombre.Contains(search));
+                query = query.Where(e => e.Nombre!.Contains(search)
+                || e.Apellido!.Contains(search) ||
+                e.Email!.Contains(search) ||
+                e.Curso!.Nombre.Contains(search));
             }
             var recordsFiltered = await query.CountAsync();
             var orderColumn = request.Order.FirstOrDefault()?.Column ?? 0;
@@ -63,7 +63,7 @@ namespace App_Proyecto.Repositories
                 "apellido" => orderDir == "desc" ? query.OrderByDescending(c => c.Apellido) : query.OrderBy(c => c.Apellido),
                 "email" => orderDir == "desc" ?
                 query.OrderByDescending(c => c.Email) : query.OrderBy(c => c.Email),
-                "cursonombre" => orderDir == "desc" ? query.OrderByDescending(c => c.Curso.Nombre) : query.OrderBy(c => c.Curso.Nombre),
+                "cursonombre" => orderDir == "desc" ? query.OrderByDescending(c => c.Curso!.Nombre) : query.OrderBy(c => c.Curso!.Nombre),
                 "id" => orderDir == "desc" ? query.OrderByDescending(c => c.Id) : query.OrderBy(c => c.Id),
                 _ => orderDir == "desc" ? query.OrderByDescending(c => c.Nombre) : query.OrderBy(c => c.Nombre)
 
@@ -72,15 +72,7 @@ namespace App_Proyecto.Repositories
             var data = await query
                 .Skip(request.Start)
                 .Take(request.Length > 0 ? request.Length : 10)
-                .Select(c => new EstudianteTableDto
-                {
-                    Id = c.Id,
-                    Nombre = c.Nombre,
-                    Apellido = c.Apellido,
-                    Email = c.Email,
-                    CursoId = c.CursoId,
-                    CursoNombre = c.Curso.Nombre
-                }).ToListAsync();
+                .Select(ToTableRow).ToListAsync();
             return new DataTableResponseDto<EstudianteTableDto>
             {
                 Draw = request.Draw,
@@ -89,6 +81,20 @@ namespace App_Proyecto.Repositories
                 Data = data
             };
         }
+
+        public async Task<IReadOnlyList<EstudianteTableDto>> GetAllAsync() =>
+            await context.Estudiantes.OrderBy(e => e.Nombre).ThenBy(e => e.Id).Select(ToTableRow).ToListAsync();
+
+        private static readonly System.Linq.Expressions.Expression<Func<Estudiante, EstudianteTableDto>> ToTableRow =
+            e => new EstudianteTableDto
+            {
+                Id = e.Id,
+                Nombre = e.Nombre ?? string.Empty,
+                Apellido = e.Apellido ?? string.Empty,
+                Email = e.Email ?? string.Empty,
+                CursoId = e.CursoId,
+                CursoNombre = e.Curso!.Nombre
+            };
 
         public async Task<bool> UpdateAsync(Estudiante estudiante)
         {

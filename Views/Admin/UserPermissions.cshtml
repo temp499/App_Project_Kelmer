@@ -1,0 +1,82 @@
+@model UserPermissionDto
+@{
+    ViewData["Title"] = $"Permisos: {Model.UserName}";
+    var permissions = (IReadOnlyList<PermissionDto>)ViewBag.AllPermissions;
+    var roles = (IReadOnlyList<RoleWithPermissionDto>)ViewBag.AllRoles;
+    var direct = Model.DirectPermission.ToDictionary(permission => permission.PermissionId);
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div><h1 class="h3">Permisos de @Model.UserName</h1><p class="text-muted">@Model.Email · Rol: @Model.RoleName</p></div>
+    <a asp-action="Users" class="btn btn-outline-secondary">Volver a usuarios</a>
+</div>
+<div class="row g-3">
+    <div class="col-lg-4">
+        @if (User.HasPermission("usuario.cambiar_rol"))
+        {
+            <section class="card mb-3">
+                <h2 class="card-header h6">Cambiar rol</h2>
+                <form asp-action="UpdateUserRole" asp-route-userId="@Model.UserId" class="card-body" method="post" data-ajax="json" data-reload>
+                    <label class="form-label" for="RoleId">Rol del usuario</label>
+                    <select class="form-select mb-3" name="RoleId" id="RoleId" data-number required>
+                        @foreach (var role in roles)
+                        {
+                            <option value="@role.Id" selected="@(role.Id == Model.RoleId)">@role.Name</option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-primary">Cambiar rol</button>
+                </form>
+            </section>
+        }
+        <section class="card">
+            <h2 class="card-header h6">Permisos efectivos (@Model.EffectivePermission.Count)</h2>
+            <div class="card-body">
+                @foreach (var permission in Model.EffectivePermission)
+                {
+                    <span class="badge bg-light text-primary border mb-1">@permission</span>
+                }
+                @if (Model.EffectivePermission.Count == 0)
+                {
+                    <p class="text-muted mb-0">El usuario no tiene permisos efectivos.</p>
+                }
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-8">
+        <section class="card">
+            <h2 class="card-header h6">Permisos directos</h2>
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr><th>Permiso</th><th>Asignación</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    @foreach (var permission in permissions)
+                    {
+                        var assignment = direct.GetValueOrDefault(permission.Id);
+                        var inherited = Model.EffectivePermission.Contains(permission.Name, StringComparer.OrdinalIgnoreCase);
+                        <tr>
+                            <td><code>@permission.Name</code><div class="small text-muted">@permission.Description</div></td>
+                            <td>@(assignment is null ? (inherited ? "Heredado" : "Sin asignar") : assignment.IsGranted ? "Concedido" : "Denegado")</td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var grant in new[] { true, false })
+                                    {
+                                        <form asp-action="AssignPermissionToUser" asp-route-userId="@Model.UserId" method="post" data-ajax="json" data-reload>
+                                            <input type="hidden" name="PermissionId" value="@permission.Id" data-number />
+                                            <input type="hidden" name="IsGranted" value="@grant.ToString().ToLowerInvariant()" data-boolean />
+                                            <button type="submit" class="btn btn-sm @(grant ? "btn-outline-success" : "btn-outline-danger")" disabled="@(assignment?.IsGranted == grant)">@(grant ? "Conceder" : "Denegar")</button>
+                                        </form>
+                                    }
+                                    @if (assignment is not null)
+                                    {
+                                        <form asp-action="RemoveUserPermission" asp-route-userId="@Model.UserId" method="post" data-ajax data-reload>
+                                            <input type="hidden" name="permissionId" value="@permission.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Quitar</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table></div>
+        </section>
+    </div>
+</div>

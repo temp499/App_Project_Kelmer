@@ -1,0 +1,31 @@
+@model IReadOnlyList<string>
+@{
+    ViewData["Title"] = "Panel administrativo";
+    var modules = new[]
+    {
+        (Policy: "rol.ver", Action: "Roles", Title: "Roles", Detail: "Crea roles y configura sus permisos."),
+        (Policy: "permiso.ver", Action: "Permissions", Title: "Permisos", Detail: "Gestiona los permisos disponibles."),
+        (Policy: "usuario.ver", Action: "Users", Title: "Usuarios", Detail: "Asigna roles y permisos directos.")
+    };
+}
+<h1 class="h3">Panel administrativo</h1>
+<p class="text-muted">Gestiona roles, permisos y usuarios.</p>
+<div class="row g-3 mb-4">
+    @foreach (var module in modules.Where(module => User.HasPermission(module.Policy)))
+    {
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h2 class="h5">@module.Title</h2>
+                <p>@module.Detail</p>
+                <a asp-action="@module.Action" class="btn btn-outline-primary">Gestionar @module.Title.ToLowerInvariant()</a>
+            </div></div>
+        </div>
+    }
+</div>
+<div class="card"><div class="card-body">
+    <h2 class="h5">Mis permisos efectivos</h2>
+    @foreach (var permission in Model)
+    {
+        <span class="badge bg-light text-primary border mb-1">@permission</span>
+    }
+</div></div>

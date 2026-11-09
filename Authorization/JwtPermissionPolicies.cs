@@ -34,6 +34,7 @@ namespace App_Proyecto.Authorization
                 if (policy is not null)
                     return policy;
                 return new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
                     .AddRequirements(new PermissionRequirement(policyName))
                     .Build();
             }

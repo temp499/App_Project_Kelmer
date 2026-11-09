@@ -6,9 +6,9 @@ namespace App_Proyecto.DTOS
     {
         public int? Id { get; set; }
         [Required]
-        [MaxLength(150)]
+        [StringLength(100, MinimumLength = 2)]
         public string Nombre { get; set; } = string.Empty;
-        [MaxLength]
+        [MaxLength(250)]
         public string? Descripcion { get; set; }
 
     }

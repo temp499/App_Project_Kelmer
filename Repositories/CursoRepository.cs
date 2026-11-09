@@ -80,7 +80,7 @@ namespace App_Proyecto.Repositories
 
         public async Task<bool> HasAnyEstudentAsync(int Id)
         {
-            return await context.Cursos.AnyAsync(c => c.Id == Id);
+            return await context.Estudiantes.AnyAsync(e => e.CursoId == Id);
         }
 
         public async Task<bool> NombreExisteAsync(string nombre, int? excludeId = null)

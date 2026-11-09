@@ -1,4 +1,4 @@
-﻿using App_Proyecto.DTOS;
+using App_Proyecto.DTOS;
 using App_Proyecto.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +41,7 @@ namespace App_Proyecto.Controllers
         {
            if(!ModelState.IsValid)
             {
-                return BadRequest(new { success = false, message = "Error en los datso a guardados" });
+                return BadRequest(new { success = false, message = "Revise los datos del curso" });
             }
             var (success, Errormessage) = await cursoService.CreateAsync(cursoDto);
             return success ?
@@ -55,7 +55,7 @@ namespace App_Proyecto.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { success = false, message = "Error en los datso a guardados" });
+                return BadRequest(new { success = false, message = "Revise los datos del curso" });
             }
             var (success, Errormessage) = await cursoService.UpdateAsync(cursoDto);
             return success ?
@@ -63,7 +63,7 @@ namespace App_Proyecto.Controllers
                 BadRequest(new { success = false, message = Errormessage });
         }
 
-        [Authorize(Policy = "curso.eliminar")]  
+        [Authorize(Policy = "curso.borrar")]
         [HttpPost]
         public async Task<IActionResult> Delete(int Id)
         {

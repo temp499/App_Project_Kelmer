@@ -10,7 +10,8 @@ namespace App_Proyecto.Services
         Task<bool> SendResetPasswordLinkAsync(string email);
         Task<bool> ResetPasswordAsync(ResetPasswordRequestDto dto);
         Task<bool> ResendConfirmationEmailAsync(string email);
-        Task<bool> ChangePasswordAsync(string userName, ChangePasswordDto dto);
+        Task<bool> ChangePasswordAsync(string email, ChangePasswordDto dto);
+        Task RevokeRefreshTokenAsync(string refreshToken);
         Task<LoginResponseDto?> RefreshAccessTokenAsync(string refreshToken);
     }
 }

@@ -1,0 +1,72 @@
+@model RoleWithPermissionDto
+@{
+    ViewData["Title"] = $"Rol: {Model.Name}";
+    var all = (IReadOnlyList<PermissionDto>)ViewBag.AllPermissions;
+    var assigned = Model.Permissions.Select(permission => permission.Id).ToHashSet();
+    var available = all.Where(permission => !assigned.Contains(permission.Id)).ToList();
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div><h1 class="h3">Rol: @Model.Name</h1><p class="text-muted">Asigna o quita permisos para este rol.</p></div>
+    <a asp-action="Roles" class="btn btn-outline-secondary">Volver a roles</a>
+</div>
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <h2 class="card-header h6">Agregar permiso al rol</h2>
+            <div class="card-body">
+                @if (available.Count == 0)
+                {
+                    <p class="text-muted mb-0">Todos los permisos están asignados.</p>
+                }
+                else
+                {
+                    <form asp-action="AssignPermissionToRole" method="post" data-ajax data-reload>
+                        <input type="hidden" name="roleId" value="@Model.Id" />
+                        <label for="rolePermission" class="form-label">Permiso disponible</label>
+                        <select id="rolePermission" class="form-select mb-3" name="permissionId" required>
+                            @foreach (var permission in available)
+                            {
+                                <option value="@permission.Id">@permission.Name — @permission.Description</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-success w-100">Asignar al rol</button>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="card"><div class="card-body">
+            <p class="d-flex justify-content-between mb-2">Asignados <span class="badge bg-success">@assigned.Count</span></p>
+            <p class="d-flex justify-content-between mb-0">Disponibles <span class="badge bg-secondary">@available.Count</span></p>
+        </div></div>
+    </div>
+    <div class="col-lg-8">
+        @foreach (var group in new[] { (Title: "Permisos asignados", Items: Model.Permissions, Assigned: true), (Title: "Permisos disponibles", Items: available, Assigned: false) })
+        {
+            <section class="card mb-3">
+                <h2 class="card-header h6">@group.Title (@group.Items.Count)</h2>
+                @if (group.Items.Count == 0)
+                {
+                    <p class="card-body text-muted mb-0">Sin permisos en esta lista.</p>
+                }
+                else
+                {
+                    <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th>Permiso</th><th>Descripción</th><th class="text-end">Acción</th></tr></thead>
+                        <tbody>
+                            @foreach (var permission in group.Items)
+                            {
+                                <tr><td><code>@permission.Name</code></td><td>@permission.Description</td><td class="text-end">
+                                    <form asp-action="@(group.Assigned ? "RemovePermissionFromRole" : "AssignPermissionToRole")" method="post" data-ajax data-reload>
+                                        <input type="hidden" name="roleId" value="@Model.Id" />
+                                        <input type="hidden" name="permissionId" value="@permission.Id" />
+                                        <button type="submit" class="btn btn-sm @(group.Assigned ? "btn-danger" : "btn-success")">@(group.Assigned ? "Quitar" : "Asignar")</button>
+                                    </form>
+                                </td></tr>
+                            }
+                        </tbody>
+                    </table></div>
+                }
+            </section>
+        }
+    </div>
+</div>

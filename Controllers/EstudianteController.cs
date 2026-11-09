@@ -1,31 +1,31 @@
-﻿using App_Proyecto.DTOS;
+using App_Proyecto.DTOS;
 using App_Proyecto.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ProyectoAuthJwt.Controllers
+namespace App_Proyecto.Controllers
 {
-    public class EstudianteController(IEstudianteService _estudianteService) : Controller
+    public class EstudianteController(IEstudianteService estudianteService, ICursoService cursoService) : Controller
     {
         [Authorize(Policy = "estudiante.ver")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            return View(await cursoService.GetAllAsync());
         }
 
         [Authorize(Policy = "estudiante.ver")]
         [HttpPost]
-        public async Task<IActionResult> GetData(DataTablesRequestDto request)
+        public async Task<IActionResult> GetData([FromForm] DataTablesRequestDto request)
         {
-            var result = await _estudianteService.GetPagedAsync(request);
+            var result = await estudianteService.GetPagedAsync(request);
             return Ok(result);
         }
 
-        [Authorize(Policy = "curso.ver")]
+        [Authorize(Policy = "estudiante.ver")]
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await _estudianteService.GetByIdAsync(id);
+            var result = await estudianteService.GetByIdAsync(id);
             if (result == null)
                 return NotFound(new { message = "Estudiante no encontrado" });
             return Ok(result);
@@ -33,25 +33,25 @@ namespace ProyectoAuthJwt.Controllers
 
         [Authorize(Policy = "estudiante.crear")]
         [HttpPost]
-        public async Task<IActionResult> Create(SaveEstudianteDto dto)
+        public async Task<IActionResult> Create([FromBody] SaveEstudianteDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { success = false, message = "Error en los datos a guardar" });
-            var (success, errorMessage) = await _estudianteService.CreateAsync(dto);
+            var (success, errorMessage) = await estudianteService.CreateAsync(dto);
             return success ?
-                Ok(new { success = true, message = "Estudiante creado sastifactoriamente" })
+                Ok(new { success = true, message = "Estudiante creado correctamente" })
                 : BadRequest(new { success = false, errorMessage });
         }
 
         [Authorize(Policy = "estudiante.actualizar")]
         [HttpPost]
-        public async Task<IActionResult> Update(SaveEstudianteDto dto)
+        public async Task<IActionResult> Update([FromBody] SaveEstudianteDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { success = false, message = "Error en los datos a guardar" });
-            var (success, errorMessage) = await _estudianteService.UpdateAsync(dto);
+            var (success, errorMessage) = await estudianteService.UpdateAsync(dto);
             return success ?
-                Ok(new { success = true, message = "Estudiante actualizado sastifactoriamente" })
+                Ok(new { success = true, message = "Estudiante actualizado correctamente" })
                 : BadRequest(new { success = false, errorMessage });
         }
 
@@ -59,9 +59,9 @@ namespace ProyectoAuthJwt.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var (success, errorMessage) = await _estudianteService.DeleteAsync(id);
+            var (success, errorMessage) = await estudianteService.DeleteAsync(id);
             return success ?
-                Ok(new { success = true, message = "Estudiante eliminado sastifactoriamente" })
+                Ok(new { success = true, message = "Estudiante eliminado correctamente" })
                 : BadRequest(new { success = false, errorMessage });
         }
     }

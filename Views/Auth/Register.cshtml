@@ -1,0 +1,17 @@
+@{ ViewData["Title"] = "Crear cuenta"; }
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="card"><div class="card-body p-4">
+            <h1 class="h3 mb-3">Crear cuenta</h1>
+            <form asp-action="Register" method="post" data-ajax="json" data-reset>
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="mb-3"><label for="UserName" class="form-label">Nombre de usuario</label><input id="UserName" name="UserName" class="form-control" autocomplete="username" minlength="2" maxlength="100" required /></div>
+                <div class="mb-3"><label for="Email" class="form-label">Correo</label><input id="Email" name="Email" class="form-control" type="email" autocomplete="email" maxlength="150" required /></div>
+                <div class="mb-3"><label for="Password" class="form-label">Contraseña</label><input id="Password" name="Password" class="form-control" type="password" autocomplete="new-password" minlength="8" maxlength="128" required /></div>
+
+                <button type="submit" class="btn btn-primary">Crear cuenta</button>
+            </form>
+            <a class="d-inline-block mt-3" asp-action="Login">Volver al inicio de sesión</a>
+        </div></div>
+    </div>
+</div>

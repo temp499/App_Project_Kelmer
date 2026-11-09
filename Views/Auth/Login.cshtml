@@ -1,0 +1,21 @@
+@{ ViewData["Title"] = "Iniciar sesión"; }
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="card"><div class="card-body p-4">
+            <h1 class="h3 mb-3">Iniciar sesión</h1>
+            <form asp-action="Login" method="post" data-ajax="json" data-redirect="@Url.Action("Index", "Home")">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="mb-3"><label for="Email" class="form-label">Correo</label><input id="Email" name="Email" class="form-control" type="email" autocomplete="email" maxlength="150" required /></div>
+                <div class="mb-3"><label for="Password" class="form-label">Contraseña</label><input id="Password" name="Password" class="form-control" type="password" autocomplete="current-password" required /></div>
+
+                <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+            </form>
+
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <a asp-action="Register">Crear cuenta</a>
+                <a asp-action="ForgotPassword">Olvidé mi contraseña</a>
+                <button type="button" class="btn btn-link p-0" data-resend="@Url.Action("ResendConfirmation")">Reenviar confirmación</button>
+            </div>
+        </div></div>
+    </div>
+</div>

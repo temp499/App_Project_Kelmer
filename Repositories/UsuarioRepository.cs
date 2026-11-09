@@ -73,6 +73,23 @@ namespace App_Proyecto.Repositories
             return await UserWithPermission.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
         }
 
+        public async Task<bool> RotateRefreshTokenAsync(int userId, string currentToken, string newToken, DateTime expiresAt)
+        {
+            var now = DateTime.UtcNow;
+            return await context.Usuarios
+                .Where(user => user.Id == userId && user.RefreshToken == currentToken && user.RefreshTokenExpiryTime > now)
+                .ExecuteUpdateAsync(update => update
+                    .SetProperty(user => user.RefreshToken, newToken)
+                    .SetProperty(user => user.RefreshTokenExpiryTime, expiresAt)) == 1;
+        }
+
+        public async Task RevokeRefreshTokenAsync(string refreshToken) =>
+            await context.Usuarios
+                .Where(user => user.RefreshToken == refreshToken)
+                .ExecuteUpdateAsync(update => update
+                    .SetProperty(user => user.RefreshToken, (string?)null)
+                    .SetProperty(user => user.RefreshTokenExpiryTime, (DateTime?)null));
+
         public async Task<Usuario?> GetUsuarioByUserName(string Username)
         {
             return await UserWithPermission.FirstOrDefaultAsync(u => u.UserName == Username);

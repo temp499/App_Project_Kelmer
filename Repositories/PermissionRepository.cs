@@ -12,7 +12,7 @@ namespace App_Proyecto.Repositories
             var permission = new Permission
             {
                 Nombre = name.Trim().ToLowerInvariant(),
-                Descripcion = description?.Trim()
+                Descripcion = description?.Trim() ?? string.Empty
             };
             var entry = await context.AddAsync(permission);
             await context.SaveChangesAsync();
@@ -65,7 +65,7 @@ namespace App_Proyecto.Repositories
 
             query = ColumnName.ToLowerInvariant() switch
             {
-                "descripcion" => orderDir == "desc" ? query.OrderByDescending(c => c.Descripcion) : query.OrderBy(c => c.Descripcion),
+                "description" or "descripcion" => orderDir == "desc" ? query.OrderByDescending(c => c.Descripcion) : query.OrderBy(c => c.Descripcion),
                 "id" => orderDir == "desc" ? query.OrderByDescending(c => c.Id) : query.OrderBy(c => c.Id),
                 _ => orderDir == "desc" ? query.OrderByDescending(c => c.Nombre) : query.OrderBy(c => c.Nombre)
             };

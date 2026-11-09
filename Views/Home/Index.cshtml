@@ -1,8 +1,10 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@{ ViewData["Title"] = "Inicio"; }
+<div class="p-4 p-md-5 bg-light border rounded">
+    <h1 class="h2">Sistema de gestión académica</h1>
+    <p class="text-muted">Consulta cursos y estudiantes desde el menú de navegación.</p>
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <a class="btn btn-primary" asp-controller="Auth" asp-action="Login">Iniciar sesión</a>
+        <a class="btn btn-outline-primary" asp-controller="Auth" asp-action="Register">Crear cuenta</a>
+    }
 </div>

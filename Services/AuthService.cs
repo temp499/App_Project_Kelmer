@@ -19,9 +19,9 @@ namespace App_Proyecto.Services
     {
         private readonly JwtSettings _jwtSettings = jwtSettings.Value;
 
-        public async Task<bool> ChangePasswordAsync(string userName, ChangePasswordDto dto)
+        public async Task<bool> ChangePasswordAsync(string email, ChangePasswordDto dto)
         {
-            var user = await userRepo.GetUsuarioByUserName(userName);
+            var user = await userRepo.GetUsuarioByEmail(email);
             if (user is null || !userRepo.ValidatePassword(user, dto.CurrentPassword))
                 return false;
 
@@ -50,7 +50,7 @@ namespace App_Proyecto.Services
 
         public async Task<(bool Success, string? ErrorMessage)> RegisterAsync(RegisterRequestDto request)
         {
-            if (await userRepo.GetUsuarioByEmail(request.Email) is not null)
+            if (await userRepo.GetUsuarioByEmail(request.Email.Trim()) is not null)
                 return (false, "Correo ya en uso, intente con otro correo");
 
             var userRole = await roleRepo.GetByNameAsync("Usuario");
@@ -58,6 +58,8 @@ namespace App_Proyecto.Services
                 return (false, "El rol Usuario no está configurado");
 
             var user = mapper.Map<Usuario>(request);
+            user.Email = request.Email.Trim();
+            user.UserName = request.UserName.Trim();
             user.password = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password);
             user.RolId = userRole.Id;
             user.EmailConfirmed = "false";
@@ -105,24 +107,28 @@ namespace App_Proyecto.Services
             return (true, result, null);
         }
 
+        public Task RevokeRefreshTokenAsync(string refreshToken) =>
+            userRepo.RevokeRefreshTokenAsync(refreshToken);
+
         public async Task<LoginResponseDto?> RefreshAccessTokenAsync(string refreshToken)
         {
             var user = await userRepo.GetUsuarioByRefreshTokenAsync(refreshToken);
-            if (user is null || user.RefreshTokenExpiryTime is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (user is null || user.RefreshTokenExpiryTime is null || user.RefreshTokenExpiryTime <= DateTime.UtcNow ||
+                !bool.TryParse(user.EmailConfirmed, out var confirmed) || !confirmed)
                 return null;
 
             var accessToken = tokenService.GenerateAccessToken(user);
             var newRefreshToken = tokenService.GenerateRefreshToken();
-            user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await userRepo.SaveAsync();
+            var expiresAt = DateTime.UtcNow.AddDays(7);
+            if (!await userRepo.RotateRefreshTokenAsync(user.Id, refreshToken, newRefreshToken, expiresAt))
+                return null;
 
             return new LoginResponseDto
             {
                 AccessToken = accessToken,
                 RefreshToken = newRefreshToken,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(Math.Max(1, _jwtSettings.TokenValidateInMinutes)),
-                RefreshTokenExpiresAt = user.RefreshTokenExpiryTime
+                RefreshTokenExpiresAt = expiresAt
             };
         }
 

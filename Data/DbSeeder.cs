@@ -7,14 +7,19 @@ namespace App_Proyecto.Data
     {
         public static async Task SeedAsync(AppDBContext context)
         {
-            await context.Database.MigrateAsync();
+            if (context.Database.GetMigrations().Any())
+                await context.Database.MigrateAsync();
+            else
+                await context.Database.EnsureCreatedAsync();
 
+            await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
             await SeedRolesAsync(context);
             await SeedPermissionsAsync(context);
             await SeedRolePermissionsAsync(context);
             await SeedUsersAsync(context);
             await SeedCursosAsync(context);
             await SeedEstudiantesAsync(context);
+            await transaction.CommitAsync();
         }
 
         private static async Task SeedRolesAsync(AppDBContext context)
@@ -39,8 +44,21 @@ namespace App_Proyecto.Data
         private static async Task SeedPermissionsAsync(AppDBContext context)
         {
             if (await context.Permissions.AnyAsync())
+            {
+                if (!await context.Permissions.AnyAsync(p => p.Nombre == "admin.panel"))
+                {
+                    var admin = await context.Roles.FirstAsync(r => r.Name == "Admin");
+                    context.RolePermissions.Add(new RolePermission
+                    {
+                        RoleId = admin.Id,
+                        Permission = new Permission { Nombre = "admin.panel", Descripcion = "Acceder al panel administrativo" }
+                    });
+                    await context.SaveChangesAsync();
+                }
                 return;
+            }
             context.Permissions.AddRange(
+                new Permission { Nombre = "admin.panel", Descripcion = "Acceder al panel administrativo" },
                 new Permission { Nombre = "estudiante.ver", Descripcion = "Ver estudiante" },
                 new Permission { Nombre = "estudiante.crear", Descripcion = "Crear estudiante" },
                 new Permission { Nombre = "estudiante.actualizar", Descripcion = "Actualizar estudiante" },
@@ -118,17 +136,17 @@ namespace App_Proyecto.Data
             context.Usuarios.AddRange(
                 new Usuario
                 {
-                    UserName = adminUserName,
-                    Email = adminEmail,
-                    password = BCrypt.Net.BCrypt.EnhancedHashPassword(adminPassword),
+                    UserName = adminUserName!,
+                    Email = adminEmail!,
+                    password = BCrypt.Net.BCrypt.EnhancedHashPassword(adminPassword!),
                     EmailConfirmed = "true",
                     RolId = AdminRole.Id,
                 },
                 new Usuario
                 {
-                    UserName = usuarioUserName,
-                    Email = usuarioEmail,
-                    password = BCrypt.Net.BCrypt.EnhancedHashPassword(usuarioPassword),
+                    UserName = usuarioUserName!,
+                    Email = usuarioEmail!,
+                    password = BCrypt.Net.BCrypt.EnhancedHashPassword(usuarioPassword!),
                     EmailConfirmed = "true",
                     RolId = UsuarioRole.Id,
                 });
@@ -150,9 +168,11 @@ namespace App_Proyecto.Data
         {
             if (await context.Estudiantes.AnyAsync())
                 return;
-            var matematicas = await context.Cursos.FirstAsync(c => c.Nombre == "Matemáticas");
-            var programacion = await context.Cursos.FirstAsync(c => c.Nombre == "Programacion");
-            var historia = await context.Cursos.FirstAsync(c => c.Nombre == "Historia");
+            var matematicas = await context.Cursos.FirstOrDefaultAsync(c => c.Nombre == "Matemáticas");
+            var programacion = await context.Cursos.FirstOrDefaultAsync(c => c.Nombre == "Programacion");
+            var historia = await context.Cursos.FirstOrDefaultAsync(c => c.Nombre == "Historia");
+            if (matematicas is null || programacion is null || historia is null)
+                return;
             context.Estudiantes.AddRange(
                 new Estudiante { Nombre = "Juan", Apellido = "Perez", Email = "juan.perez@gmail.com", CursoId = matematicas.Id },
                 new Estudiante { Nombre = "Maria", Apellido = "Lopez", Email = "maria.lopez@gmail.com", CursoId = programacion.Id },

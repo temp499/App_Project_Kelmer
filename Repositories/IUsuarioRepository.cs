@@ -16,6 +16,8 @@ namespace App_Proyecto.Repositories
         Task SaveAsync();
 
         Task<Usuario?> GetUsuarioByRefreshTokenAsync(string refreshToken);
+        Task<bool> RotateRefreshTokenAsync(int userId, string currentToken, string newToken, DateTime expiresAt);
+        Task RevokeRefreshTokenAsync(string refreshToken);
         Task<bool> AssingPermissiontoUsuarioAsync(int usuarioId, int permissionId, bool isGranted);
         Task<bool> RemovePermissionFromUsuarioAsync(int usuarioId, int permissionId);
         Task<bool> UpdateUsuarioRolAsync(int usuarioId, int roleId);

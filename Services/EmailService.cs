@@ -14,9 +14,9 @@ namespace App_Proyecto.Services
             using var client = new SmtpClient(_smtp.Host, _smtp.Port)
             {
                 Credentials = new NetworkCredential(_smtp.User, _smtp.Password),
-                EnableSsl = true
+                EnableSsl = _smtp.EnableSsl
             };
-            var mail = new MailMessage
+            using var mail = new MailMessage
             {
                 From = new MailAddress(_smtp.User, "Soporte de la autenticacion"),
                 Subject="Token de confirmacion/ Recuperacion",

@@ -1,10 +1,11 @@
-﻿namespace App_Proyecto.DTOS
+namespace App_Proyecto.DTOS
 {
     public class DataTableResponseDto<T>
     {
 
         public int Draw { get; set; }
         public int RecordsTotal { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("recordsFiltered")]
         public int RecordsTotalFiltered { get; set; }
         public List<T> Data { get; set; } = [];
 

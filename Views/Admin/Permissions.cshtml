@@ -1,5 +1,8 @@
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
 @{
     ViewData["Title"] = "Permisos";
+    var canEdit = (await AuthorizationService.AuthorizeAsync(User, null, "permiso.actualizar")).Succeeded;
+    var canDelete = (await AuthorizationService.AuthorizeAsync(User, null, "permiso.borrar")).Succeeded;
 }
 @section Styles {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.11/css/dataTables.bootstrap5.min.css" integrity="sha384-0gIEQgzci/UNbFAKcuem1owTyJxmDMzkIka2STHeD8hUj1X9Ej3SxWafQclv7NCM" crossorigin="anonymous" />
@@ -21,8 +24,8 @@
         data-list="@Url.Action("GetPermissionsData")" data-item="@Url.Action("GetPermissionById")"
         data-create-url="@Url.Action("CreatePermission")" data-update-url="@Url.Action("UpdatePermission")"
         data-delete-url="@Url.Action("DeletePermission")" data-entity="permiso"
-        data-edit="@User.HasPermission("permiso.actualizar").ToString().ToLowerInvariant()"
-        data-delete="@User.HasPermission("permiso.borrar").ToString().ToLowerInvariant()">
+        data-edit="@canEdit.ToString().ToLowerInvariant()"
+        data-delete="@canDelete.ToString().ToLowerInvariant()">
         <thead><tr>
             <th data-field="id">ID</th>
             <th data-field="name">Nombre</th>

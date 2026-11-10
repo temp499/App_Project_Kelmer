@@ -31,7 +31,7 @@
                         {
                             <a class="btn btn-sm btn-outline-primary" asp-controller="Auth" asp-action="Login">Iniciar sesión</a>
                         }
-                        @if (User.Identity?.IsAuthenticated == true || Context.Request.Cookies.ContainsKey("refreshToken"))
+                        @if (User.Identity?.IsAuthenticated == true || Context.Request.Cookies.ContainsKey(AuthSessionCookies.Refresh))
                         {
                             <form asp-controller="Auth" asp-action="RefreshToken" method="post" data-ajax data-reload>
                                 <button class="btn btn-sm btn-outline-primary" type="submit">Actualizar sesión</button>

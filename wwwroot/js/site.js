@@ -29,9 +29,23 @@ function showActionMessage(message, error = false) {
     alert.className = `alert alert-${error ? "danger" : "success"}`;
 }
 
+for (const confirmation of document.querySelectorAll("[data-confirm-password]")) {
+    const form = confirmation.form;
+    const password = form.elements.namedItem(confirmation.dataset.confirmPassword);
+    const validate = () => confirmation.setCustomValidity(
+        confirmation.value && confirmation.value !== password.value ? "Las contraseñas no coinciden." : "");
+
+    password.addEventListener("input", validate);
+    confirmation.addEventListener("input", validate);
+    form.addEventListener("submit", event => {
+        validate();
+        if (!confirmation.reportValidity()) event.preventDefault();
+    });
+}
+
 document.addEventListener("submit", async event => {
     const form = event.target;
-    if (!form.matches("form[data-ajax]")) return;
+    if (event.defaultPrevented || !form.matches("form[data-ajax]")) return;
     event.preventDefault();
     if (form.dataset.confirm && !confirm(form.dataset.confirm)) return;
 
@@ -50,6 +64,7 @@ document.addEventListener("submit", async event => {
         }
         const result = await appRequests.send(form.action, "POST", body);
         if (form.dataset.redirect) {
+            if (result.message) sessionStorage.setItem("app-message", result.message);
             location.assign(form.dataset.redirect);
         } else if (form.hasAttribute("data-reload")) {
             sessionStorage.setItem("app-message", result.message ?? "Cambios guardados.");

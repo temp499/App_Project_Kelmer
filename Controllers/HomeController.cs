@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using App_Proyecto.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App_Proyecto.Controllers
@@ -13,13 +14,22 @@ namespace App_Proyecto.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize]
         public IActionResult Privacy()
         {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult NotFoundPage()
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
             return View();
         }
 

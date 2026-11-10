@@ -6,6 +6,7 @@ using App_Proyecto.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using App_Proyecto.Mapping;
 using App_Proyecto.Models.Settings;
@@ -35,10 +36,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
     options.Events = new JwtBearerEvents
     {
-        OnMessageReceived = context =>
+        OnMessageReceived = async context =>
         {
-            context.Token = context.Request.Cookies["access_token"];
-            return Task.CompletedTask;
+            var request = context.Request;
+            context.Token = request.Cookies[AuthSessionCookies.Access];
+            var refreshToken = request.Cookies[AuthSessionCookies.Refresh];
+            if (!string.IsNullOrEmpty(context.Token) || string.IsNullOrEmpty(refreshToken) ||
+                request.Headers.ContainsKey("Authorization") || !HttpMethods.IsGet(request.Method) ||
+                !AcceptsHtml(request) ||
+                context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<ControllerActionDescriptor>() is null)
+                return;
+
+            var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+            var session = await authService.RefreshAccessTokenAsync(refreshToken);
+            if (session is null)
+                return;
+
+            AuthSessionCookies.Set(context.Response, session);
+            context.Token = session.AccessToken;
         },
         OnTokenValidated = async context =>
         {
@@ -68,13 +83,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         },
         OnForbidden = context =>
         {
-            if (context.Request.Headers.Accept.ToString().Contains("text/html", StringComparison.OrdinalIgnoreCase))
+            if (AcceptsHtml(context.Request))
                 context.Response.Redirect(context.Request.PathBase + "/Auth/AccessDenied");
             return Task.CompletedTask;
         },
         OnChallenge = context =>
         {
-            if (context.Request.Headers.Accept.ToString().Contains("text/html", StringComparison.OrdinalIgnoreCase))
+            if (AcceptsHtml(context.Request))
             {
                 context.HandleResponse();
                 context.Response.Redirect(context.Request.PathBase + "/Auth/Login");
@@ -83,7 +98,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         }
     };
 });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("admin.panel", policy => policy.RequireAuthenticatedUser()
+        .RequireAssertion(context => context.User.HasAnyPermission("admin.panel", "rol.ver", "permiso.ver", "usuario.ver")))
+    .AddPolicy("permiso.actualizar", policy => policy.RequireAuthenticatedUser()
+        .RequireAssertion(context => context.User.HasAnyPermission("permiso.actualizar", "permiso.crear")))
+    .AddPolicy("permiso.borrar", policy => policy.RequireAuthenticatedUser()
+        .RequireAssertion(context => context.User.HasAnyPermission("permiso.borrar", "permiso.crear")));
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, JwtPermissionPolicies.PermissionPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationHandler, JwtPermissionPolicies.PermissionAuthorizationHandler>();
 builder.Services.AddDbContext<AppDBContext>(options =>
@@ -126,6 +147,15 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStatusCodePages(context =>
+{
+    var httpContext = context.HttpContext;
+    if (httpContext.Response.StatusCode == StatusCodes.Status404NotFound &&
+        HttpMethods.IsGet(httpContext.Request.Method) && AcceptsHtml(httpContext.Request))
+        httpContext.Response.Redirect(httpContext.Request.PathBase + "/Home/NotFoundPage");
+
+    return Task.CompletedTask;
+});
 app.UseRouting();
 
 app.UseAuthentication();
@@ -140,4 +170,9 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+static bool AcceptsHtml(HttpRequest request) =>
+    request.GetTypedHeaders().Accept.Any(mediaType =>
+        mediaType.Quality.GetValueOrDefault(1) > 0 &&
+        string.Equals(mediaType.MediaType.Value, "text/html", StringComparison.OrdinalIgnoreCase));
 

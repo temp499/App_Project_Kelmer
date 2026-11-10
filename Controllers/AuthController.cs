@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using App_Proyecto.DTOS;
+using App_Proyecto.Extensions;
 using App_Proyecto.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,9 +9,6 @@ namespace App_Proyecto.Controllers;
 
 public class AuthController(IAuthService authService) : Controller
 {
-    private const string AccessCookie = "access_token";
-    private const string RefreshCookie = "refreshToken";
-
     [HttpGet]
     public IActionResult Register() => View();
 
@@ -41,18 +39,18 @@ public class AuthController(IAuthService authService) : Controller
         if (!success || result is null)
             return Unauthorized(new { message = error ?? "Credenciales inválidas" });
 
-        SetSession(result);
+        AuthSessionCookies.Set(Response, result);
         return Ok(new { success = true });
     }
 
     [HttpPost]
     public async Task<IActionResult> Logout()
     {
-        var refreshToken = Request.Cookies[RefreshCookie];
+        var refreshToken = Request.Cookies[AuthSessionCookies.Refresh];
         if (!string.IsNullOrEmpty(refreshToken))
             await authService.RevokeRefreshTokenAsync(refreshToken);
 
-        ClearSession();
+        AuthSessionCookies.Clear(Response);
         return Ok(new { success = true, message = "Sesión cerrada" });
     }
 
@@ -113,7 +111,7 @@ public class AuthController(IAuthService authService) : Controller
             return View(dto);
         }
 
-        ClearSession();
+        AuthSessionCookies.Clear(Response);
         TempData["Success"] = "Contraseña actualizada. Inicie sesión con su nueva contraseña.";
         return RedirectToAction(nameof(Login));
     }
@@ -139,7 +137,7 @@ public class AuthController(IAuthService authService) : Controller
             return View(dto);
         }
 
-        ClearSession();
+        AuthSessionCookies.Clear(Response);
         TempData["Success"] = "Contraseña actualizada. Inicie sesión con su nueva contraseña.";
         return RedirectToAction(nameof(Login));
     }
@@ -147,7 +145,7 @@ public class AuthController(IAuthService authService) : Controller
     [HttpPost]
     public async Task<IActionResult> RefreshToken()
     {
-        var refreshToken = Request.Cookies[RefreshCookie];
+        var refreshToken = Request.Cookies[AuthSessionCookies.Refresh];
         if (string.IsNullOrEmpty(refreshToken))
             return Unauthorized(new { message = "Inicie sesión para continuar" });
 
@@ -155,28 +153,7 @@ public class AuthController(IAuthService authService) : Controller
         if (result is null)
             return Unauthorized(new { message = "La sesión expiró. Vuelva a iniciar sesión." });
 
-        SetSession(result);
+        AuthSessionCookies.Set(Response, result);
         return Ok(new { success = true, message = "Sesión actualizada" });
     }
-
-    private void SetSession(LoginResponseDto result)
-    {
-        Response.Cookies.Append(AccessCookie, result.AccessToken, SessionCookie(result.ExpiresAt));
-        Response.Cookies.Append(RefreshCookie, result.RefreshToken, SessionCookie(result.RefreshTokenExpiresAt));
-    }
-
-    private void ClearSession()
-    {
-        Response.Cookies.Delete(AccessCookie, SessionCookie(null));
-        Response.Cookies.Delete(RefreshCookie, SessionCookie(null));
-    }
-
-    private static CookieOptions SessionCookie(DateTime? expires) => new()
-    {
-        HttpOnly = true,
-        Secure = true,
-        SameSite = SameSiteMode.Strict,
-        Path = "/",
-        Expires = expires
-    };
 }

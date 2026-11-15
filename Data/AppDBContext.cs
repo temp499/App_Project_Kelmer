@@ -15,6 +15,7 @@ namespace App_Proyecto.Data
         public DbSet<UsuarioPermission> UsuarioPermissions => Set<UsuarioPermission>();
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
+        public DbSet<PeriodoAcademico> PeriodosAcademicos => Set<PeriodoAcademico>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

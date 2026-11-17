@@ -16,6 +16,8 @@ namespace App_Proyecto.Data
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
         public DbSet<PeriodoAcademico> PeriodosAcademicos => Set<PeriodoAcademico>();
+        public DbSet<Matricula> Matriculas => Set<Matricula>();
+        public DbSet<DetalleMatricula> DetallesMatricula => Set<DetalleMatricula>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -49,6 +51,37 @@ namespace App_Proyecto.Data
                 .WithMany(u => u.UsuarioPermissions)
                 .HasForeignKey(up => up.PermissionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Matricula>()
+                .HasIndex(m => new { m.EstudianteId, m.PeriodoAcademicoId })
+                .IsUnique();
+
+            modelBuilder.Entity<Matricula>()
+                .HasOne(m => m.Estudiante)
+                .WithMany()
+                .HasForeignKey(m => m.EstudianteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Matricula>()
+                .HasOne(m => m.PeriodoAcademico)
+                .WithMany()
+                .HasForeignKey(m => m.PeriodoAcademicoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DetalleMatricula>()
+                .HasKey(d => new { d.MatriculaId, d.CursoId });
+
+            modelBuilder.Entity<DetalleMatricula>()
+                .HasOne(d => d.Matricula)
+                .WithMany(m => m.Detalles)
+                .HasForeignKey(d => d.MatriculaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DetalleMatricula>()
+                .HasOne(d => d.Curso)
+                .WithMany()
+                .HasForeignKey(d => d.CursoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Estudiante>()
                 .HasOne(e => e.Curso)

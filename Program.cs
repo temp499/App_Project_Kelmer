@@ -115,12 +115,14 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(UserProfile).Assembly))
 
 builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 builder.Services.AddScoped<IEstudianteRepository, EstudianteRepository>();
+builder.Services.AddScoped<IMatriculaRepository, MatriculaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IRoleRepository, RolRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 
 builder.Services.AddScoped<ICursoService, CursoService>();
 builder.Services.AddScoped<IEstudianteService, EstudianteService>();
+builder.Services.AddScoped<IMatriculaService, MatriculaService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();

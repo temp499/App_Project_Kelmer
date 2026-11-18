@@ -10,6 +10,17 @@ namespace App_Proyecto.Repositories
     {
         private const int DuplicateIndexError = 2601;
 
+        public async Task<Matricula?> GetByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            return await context.Matriculas
+                .AsNoTracking()
+                .Include(matricula => matricula.Estudiante)
+                .Include(matricula => matricula.PeriodoAcademico)
+                .Include(matricula => matricula.Detalles)
+                    .ThenInclude(detalle => detalle.Curso)
+                .SingleOrDefaultAsync(matricula => matricula.Id == id, cancellationToken);
+        }
+
         public async Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
             Matricula matricula,
             CancellationToken cancellationToken)
@@ -23,10 +34,10 @@ namespace App_Proyecto.Repositories
                 .SingleOrDefaultAsync(cancellationToken);
 
             if (matriculaAbierta is null)
-                return (null, "El período académico no existe");
+                return (null, "El periodo academico no existe");
 
             if (matriculaAbierta == false)
-                return (null, "La matrícula está cerrada para este período");
+                return (null, "La matricula esta cerrada para este periodo");
 
             if (!await context.Estudiantes.AnyAsync(e => e.Id == matricula.EstudianteId, cancellationToken))
                 return (null, "El estudiante no existe");
@@ -36,7 +47,7 @@ namespace App_Proyecto.Repositories
                 .CountAsync(curso => cursoIds.Contains(curso.Id), cancellationToken);
 
             if (cursosEncontrados != cursoIds.Length)
-                return (null, "Uno o más cursos seleccionados no existen");
+                return (null, "Uno o mas cursos seleccionados no existen");
 
             context.Matriculas.Add(matricula);
 
@@ -51,7 +62,7 @@ namespace App_Proyecto.Repositories
                     context.Entry(detalle).State = EntityState.Detached;
 
                 context.Entry(matricula).State = EntityState.Detached;
-                return (null, "El estudiante ya tiene matrícula en este período");
+                return (null, "El estudiante ya tiene matricula en este periodo");
             }
 
             await transaction.CommitAsync(cancellationToken);

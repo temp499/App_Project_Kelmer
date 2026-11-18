@@ -4,6 +4,9 @@ namespace App_Proyecto.Services
 {
     public interface IMatriculaService
     {
+        Task<MatriculaConsultaDto?> GetByIdAsync(
+            int id, CancellationToken cancellationToken = default);
+
         Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
             int estudianteId,
             CrearMatriculaDto dto,

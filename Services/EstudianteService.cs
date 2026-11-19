@@ -51,8 +51,19 @@ public class EstudianteService(IEstudianteRepository repository, ICursoRepositor
         return (true, null);
     }
 
-    public async Task<(bool Success, string? ErrorMessage)> DeleteAsync(int id) =>
-        await repository.DeleteAsync(id) ? (true, null) : (false, "Estudiante no encontrado");
+    public async Task<(bool Success, string? ErrorMessage)> DeleteAsync(int id)
+    {
+        if (await repository.GetByIdAsync(id) == null)
+            return (false, "Estudiante no encontrado");
+
+        if (await repository.TieneMatriculasAsync(id))
+            return (false, "No se puede eliminar el estudiante porque tiene matriculas registradas");
+
+        var deleted = await repository.DeleteAsync(id);
+        return deleted
+            ? (true, null)
+            : (false, "No se pudo eliminar el estudiante, vuelve a consultar sus datos");
+    }
 
     private async Task<string?> ValidateAsync(SaveEstudianteDto dto, int? id)
     {

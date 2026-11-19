@@ -2,6 +2,7 @@ using App_Proyecto.Data;
 using App_Proyecto.DTOS;
 using App_Proyecto.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace App_Proyecto.Repositories
 {
@@ -14,14 +15,29 @@ namespace App_Proyecto.Repositories
             return entry.Entity;
         }
 
+        public async Task<bool> TieneMatriculasAsync(int id)
+        {
+            return await context.DetallesMatricula.AnyAsync(matricula => matricula.CursoId == id);
+        }
+
         public async Task<bool> DeleteAsync(int Id)
         {
             var curso = await context.Cursos.FindAsync(Id);
             if (curso == null) return false;
 
             context.Cursos.Remove(curso);
-            await context.SaveChangesAsync();
-            return true;
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException error) when (
+                error.InnerException is SqlException sqlError && sqlError.Number == 547)
+            {
+                context.Entry(curso).State = EntityState.Unchanged;
+                return false;
+            }
 
         }
         public async Task<IReadOnlyList<Curso>> GetAllAsync()

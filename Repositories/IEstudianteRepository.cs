@@ -13,6 +13,7 @@ namespace App_Proyecto.Repositories
         Task<Estudiante> CreateAsync(Estudiante estudiante);
         Task<bool> UpdateAsync(Estudiante estudiante);
 
+        Task<bool> TieneMatriculasAsync(int id);
         Task<bool> DeleteAsync(int Id);
 
     }

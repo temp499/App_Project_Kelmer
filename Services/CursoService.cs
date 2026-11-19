@@ -20,10 +20,19 @@ namespace App_Proyecto.Services
 
         public async Task<(bool Success, string? ErrorMessage)> DeleteAsync(int id)
         {
+            if (await repo.GetByIdAsync(id) == null)
+                return (false, "Curso no encontrado");
+
             if (await repo.HasAnyEstudentAsync(id))
                 return (false, "No se puede eliminar el curso debido a que tiene estudiantes asignados");
+
+            if (await repo.TieneMatriculasAsync(id))
+                return (false, "No se puede eliminar el curso porque tiene matriculas registradas");
+
             var deleted = await repo.DeleteAsync(id);
-            return deleted ? (true, null) : (false, "Curso no encontrado");
+            return deleted
+                ? (true, null)
+                : (false, "No se pudo eliminar el curso, vuelve a consultar sus datos");
         }
 
         public async Task<IReadOnlyList<CursoTableDto>> GetAllAsync()

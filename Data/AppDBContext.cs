@@ -15,6 +15,7 @@ namespace App_Proyecto.Data
         public DbSet<UsuarioPermission> UsuarioPermissions => Set<UsuarioPermission>();
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
+        public DbSet<Facultad> Facultades => Set<Facultad>();
         public DbSet<PeriodoAcademico> PeriodosAcademicos => Set<PeriodoAcademico>();
         public DbSet<Matricula> Matriculas => Set<Matricula>();
         public DbSet<DetalleMatricula> DetallesMatricula => Set<DetalleMatricula>();

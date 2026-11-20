@@ -3,6 +3,8 @@ using App_Proyecto.Data;
 using App_Proyecto.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using App_Proyecto.DTOS;
+using static App_Proyecto.DTOS.HistorialMatriculaDto;
 
 namespace App_Proyecto.Repositories
 {
@@ -13,6 +15,7 @@ namespace App_Proyecto.Repositories
         public async Task<Matricula?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await context.Matriculas
+                .OrderByDescending(matricula => matricula.Id)
                 .AsNoTracking()
                 .Include(matricula => matricula.Estudiante)
                 .Include(matricula => matricula.PeriodoAcademico)
@@ -68,5 +71,51 @@ namespace App_Proyecto.Repositories
             await transaction.CommitAsync(cancellationToken);
             return (matricula.Id, null);
         }
+
+        public async Task<HistorialMatriculaDto?> GetHistorialAsync(
+            ConsultaHistorialDto consulta, CancellationToken cancellationToken)
+
+        {
+            var estudiante = await context.Estudiantes
+                 .AsNoTracking()
+                 .Where(e => e.Id == consulta.EstudianteId)
+                 .Select(e => new { e.Id, e.Nombre, e.Apellido })
+                 .SingleOrDefaultAsync(cancellationToken);
+
+            if (estudiante == null)
+                return null;
+
+            var query = context.Matriculas
+                .AsNoTracking()
+                .Where(matricula => matricula.EstudianteId == consulta.EstudianteId);
+
+            var total = await query.CountAsync(cancellationToken);
+            var registrosOmitidos = (consulta.Pagina - 1) * consulta.TamañoPagina;
+
+            var matriculas = await query
+                .OrderByDescending(matricula => matricula.Id)
+                .Skip(registrosOmitidos)
+                .Take(consulta.TamañoPagina)
+                .Select(matricula => new MatriculaResumenDto
+                {
+                    Id = matricula.Id,
+                    PeriodoAcademicoId = matricula.PeriodoAcademicoId,
+                    PeriodoNombre = matricula.PeriodoAcademico.Nombre,
+                    TotalCursos = matricula.Detalles.Count
+                })
+                .ToListAsync(cancellationToken);
+
+            return new HistorialMatriculaDto
+            {
+                EstudianteId = estudiante.Id,
+                EstudianteNombre = $"{estudiante.Nombre} {estudiante.Apellido}",
+                Pagina = consulta.Pagina,
+                TamañoPagina = consulta.TamañoPagina,
+                TotalRegistros = total,
+                Matriculas = matriculas
+
+            };
+
+        }     
     }
 }

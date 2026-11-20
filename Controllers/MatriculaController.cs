@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace App_Proyecto.Controllers
 {
     [Authorize(Roles = "Admin")]
+
+
     public class MatriculaController(IMatriculaService service) : Controller
     {
         [HttpPost]
@@ -42,6 +44,21 @@ namespace App_Proyecto.Controllers
                 return NotFound(new { message = "Matricula no encontrada" });
 
             return Ok(matricula);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHistorial(
+            [FromQuery] ConsultaHistorialDto consulta,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Revisa el estudiante y la Pagina Solicitada" });
+            var historial = await service.GetHistorialAsync(consulta, cancellationToken);
+            if (historial == null)
+                return NotFound(new { message = "Estudiante no encontrado" });
+
+            return Ok(historial);
+
         }
     }
 }

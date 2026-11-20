@@ -1,6 +1,7 @@
 using App_Proyecto.DTOS;
 using App_Proyecto.Models;
 using App_Proyecto.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace App_Proyecto.Services
 {
@@ -35,6 +36,13 @@ namespace App_Proyecto.Services
             };
         }
 
+        public Task <HistorialMatriculaDto?> GetHistorialAsync(
+            ConsultaHistorialDto consulta, CancellationToken cancellationToken = default)
+        {
+            Validator.ValidateObject(consulta, new ValidationContext(consulta), true);
+            return repository.GetHistorialAsync(consulta,cancellationToken);
+        }
+
         public async Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
             int estudianteId,
             CrearMatriculaDto dto,
@@ -67,5 +75,7 @@ namespace App_Proyecto.Services
 
             return await repository.CreateAsync(matricula, cancellationToken);
         }
+
+
     }
 }

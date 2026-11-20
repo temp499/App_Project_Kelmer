@@ -15,6 +15,7 @@ namespace App_Proyecto.Data
         public DbSet<UsuarioPermission> UsuarioPermissions => Set<UsuarioPermission>();
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
+        public DbSet<Aula> Aulas => Set<Aula>();
         public DbSet<Sede> Sedes => Set<Sede>();
         public DbSet<Carrera> Carreras => Set<Carrera>();
         public DbSet<Facultad> Facultades => Set<Facultad>();
@@ -29,6 +30,12 @@ namespace App_Proyecto.Data
                 .HasOne(item => item.Facultad)
                 .WithMany()
                 .HasForeignKey(item => item.FacultadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Aula>()
+                .HasOne(item => item.Sede)
+                .WithMany()
+                .HasForeignKey(item => item.SedeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RolePermission>()

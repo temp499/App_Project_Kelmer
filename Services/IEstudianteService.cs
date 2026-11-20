@@ -11,6 +11,7 @@ namespace App_Proyecto.Services
         Task<SaveEstudianteDto?> GetByIdAsync(int id);
         Task<(bool Success, string? ErrorMessage)> CreateAsync(SaveEstudianteDto dto);
         Task<(bool Success, string? ErrorMessage)> UpdateAsync(SaveEstudianteDto dto);
+        Task<(bool Success, string? ErrorMessage)> VincularUsuarioAsync(int estudianteId, int usuarioId);
         Task<(bool Success, string? ErrorMessage)> DeleteAsync(int id);
     }
 }

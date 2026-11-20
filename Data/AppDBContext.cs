@@ -15,6 +15,7 @@ namespace App_Proyecto.Data
         public DbSet<UsuarioPermission> UsuarioPermissions => Set<UsuarioPermission>();
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
+        public DbSet<Carrera> Carreras => Set<Carrera>();
         public DbSet<Facultad> Facultades => Set<Facultad>();
         public DbSet<PeriodoAcademico> PeriodosAcademicos => Set<PeriodoAcademico>();
         public DbSet<Matricula> Matriculas => Set<Matricula>();
@@ -23,6 +24,12 @@ namespace App_Proyecto.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Carrera>()
+                .HasOne(item => item.Facultad)
+                .WithMany()
+                .HasForeignKey(item => item.FacultadId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
 

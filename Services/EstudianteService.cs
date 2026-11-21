@@ -4,7 +4,10 @@ using App_Proyecto.Repositories;
 
 namespace App_Proyecto.Services;
 
-public class EstudianteService(IEstudianteRepository repository, ICursoRepository cursos) : IEstudianteService
+public class EstudianteService(
+    IEstudianteRepository repository,
+    ICursoRepository cursos,
+    IUsuarioRepository usuarios) : IEstudianteService
 {
     public Task<DataTableResponseDto<EstudianteTableDto>> GetPagedAsync(DataTablesRequestDto request) =>
         repository.GetPagedAsync(request);
@@ -49,6 +52,31 @@ public class EstudianteService(IEstudianteRepository repository, ICursoRepositor
         Apply(estudiante, dto);
         await repository.UpdateAsync(estudiante);
         return (true, null);
+    }
+
+    public async Task<(bool Success, string? ErrorMessage)> VincularUsuarioAsync(int estudianteId, int usuarioId)
+    {
+        if (estudianteId <= 0 || usuarioId <= 0)
+            return (false, "Selecciona un estudiante y una cuenta validos");
+
+        var estudiante = await repository.GetByIdAsync(estudianteId);
+        if (estudiante == null)
+            return (false, "Estudiante no encontrado");
+
+        var usuario = await usuarios.GetUsuarioByIdWithPermissionAsync(usuarioId);
+        if (usuario == null)
+            return (false, "Usuario no encontrado");
+
+        if (estudiante.UsuarioId == usuarioId)
+            return (true, null);
+
+        if (estudiante.UsuarioId.HasValue)
+            return (false, "El estudiante ya tiene una cuenta vinculada");
+
+        var vinculado = await repository.VincularUsuarioAsync(estudianteId, usuarioId);
+        return vinculado
+            ? (true, null)
+            : (false, "No se pudo vincular la cuenta, revisa si ya pertenece a otro estudiante");
     }
 
     public async Task<(bool Success, string? ErrorMessage)> DeleteAsync(int id)

@@ -84,6 +84,17 @@ namespace App_Proyecto.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Estudiante>()
+                .HasIndex(estudiante => estudiante.UsuarioId)
+                .IsUnique()
+                .HasFilter("[UsuarioId] IS NOT NULL");
+
+            modelBuilder.Entity<Estudiante>()
+                .HasOne(estudiante => estudiante.Usuario)
+                .WithOne()
+                .HasForeignKey<Estudiante>(estudiante => estudiante.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Estudiante>()
                 .HasOne(e => e.Curso)
                 .WithMany(c => c.Estudiantes)
                 .HasForeignKey(e => e.CursoId)

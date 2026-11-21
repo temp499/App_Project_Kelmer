@@ -21,6 +21,32 @@ namespace App_Proyecto.Repositories
             return await context.Matriculas.AnyAsync(matricula => matricula.EstudianteId == id);
         }
 
+        public async Task<Estudiante?> GetByUsuarioIdAsync(
+            int usuarioId, CancellationToken cancellationToken)
+        {
+            return await context.Estudiantes
+                .AsNoTracking()
+                .SingleOrDefaultAsync(estudiante => estudiante.UsuarioId == usuarioId, cancellationToken);
+        }
+
+        public async Task<bool> VincularUsuarioAsync(int estudianteId, int usuarioId)
+        {
+            try
+            {
+                var actualizados = await context.Estudiantes
+                    .Where(estudiante => estudiante.Id == estudianteId && estudiante.UsuarioId == null)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(estudiante => estudiante.UsuarioId, usuarioId));
+
+                return actualizados == 1;
+            }
+            catch (SqlException error) when (
+                error.Number == 2601 || error.Number == 2627 || error.Number == 547)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteAsync(int Id)
         {
             var estudiante = await context.Estudiantes.FindAsync(Id);

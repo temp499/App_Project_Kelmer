@@ -10,6 +10,9 @@ namespace App_Proyecto.Models
         public string? Apellido { get; set; }
 
         public string? Email { get; set; }
+        public int? UsuarioId { get; set; }
+        public Usuario? Usuario { get; set; }
+
         public int CursoId { get; set; }
         public virtual Curso? Curso { get; set; }
     }

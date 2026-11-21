@@ -7,6 +7,20 @@ namespace App_Proyecto.Controllers
 {
     public class EstudianteController(IEstudianteService estudianteService, ICursoService cursoService) : Controller
     {
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> VincularUsuario(int id, [FromBody] VincularEstudianteDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Selecciona una cuenta valida" });
+
+            var resultado = await estudianteService.VincularUsuarioAsync(id, dto.UsuarioId);
+            if (!resultado.Success)
+                return BadRequest(new { message = resultado.ErrorMessage });
+
+            return Ok(new { message = "Cuenta vinculada correctamente" });
+        }
+
         [Authorize(Policy = "estudiante.ver")]
         public async Task<IActionResult> Index()
         {

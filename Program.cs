@@ -121,6 +121,8 @@ builder.Services.AddScoped<IRoleRepository, RolRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 
 builder.Services.AddScoped<ICursoService, CursoService>();
+builder.Services.AddScoped<IOfertaAcademicaRepository, OfertaAcademicaRepository>();
+builder.Services.AddScoped<IOfertaAcademicaService, OfertaAcademicaService>();
 builder.Services.AddScoped<IDetallePlanEstudioRepository, DetallePlanEstudioRepository>();
 builder.Services.AddScoped<IDetallePlanEstudioService, DetallePlanEstudioService>();
 builder.Services.AddScoped<IPlanEstudioRepository, PlanEstudioRepository>();

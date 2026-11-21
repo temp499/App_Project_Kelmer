@@ -39,14 +39,32 @@ namespace App_Proyecto.Repositories
 
         public async Task<bool> UpdateAsync(Aula item)
         {
-            context.Aulas.Update(item);
+            await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
             try
             {
+                var actual = await context.Aulas.AsNoTracking().SingleOrDefaultAsync(value => value.Id == item.Id);
+                if (actual == null)
+                    return false;
+
+                var horarios = context.DetallesHorario.Where(horario => horario.AulaId == item.Id);
+                if (actual.SedeId != item.SedeId && await horarios.AnyAsync())
+                    return false;
+
+                if (await horarios.AnyAsync(horario => horario.DetalleOfertaAcademica!.Cupo > item.Capacidad))
+                    return false;
+
+                context.Aulas.Update(item);
                 await context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return true;
             }
-            catch (DbUpdateException error) when (
-                error.InnerException is SqlException sqlError && sqlError.Number == 547)
+            catch (DbUpdateException error) when (error.InnerException is SqlException sqlError
+                && (sqlError.Number == 547 || sqlError.Number == 2601 || sqlError.Number == 2627 || sqlError.Number == 1205))
+            {
+                context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
+            catch (SqlException error) when (error.Number == 1205)
             {
                 context.Entry(item).State = EntityState.Unchanged;
                 return false;

@@ -46,6 +46,17 @@ namespace App_Proyecto.Repositories
                 if (grupo?.OfertaAcademica == null || aula == null)
                     return false;
 
+                if (await context.DetallesMatricula.AnyAsync(detalle => detalle.DetalleOfertaAcademicaId == grupo.Id))
+                    return false;
+
+                if (!nuevo)
+                {
+                    var actual = await context.DetallesHorario.AsNoTracking().SingleOrDefaultAsync(horario => horario.Id == item.Id);
+                    if (actual == null || await context.DetallesMatricula.AnyAsync(detalle =>
+                        detalle.DetalleOfertaAcademicaId == actual.DetalleOfertaAcademicaId))
+                        return false;
+                }
+
                 if (aula.SedeId != grupo.OfertaAcademica.SedeId || aula.Capacidad < grupo.Cupo)
                     return false;
 
@@ -85,13 +96,36 @@ namespace App_Proyecto.Repositories
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var item = await context.DetallesHorario.FindAsync(id);
-            if (item == null)
-                return false;
+            DetalleHorario? item = null;
+            await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
+            {
+                item = await context.DetallesHorario.FindAsync(id);
+                if (item == null)
+                    return false;
 
-            context.DetallesHorario.Remove(item);
-            await context.SaveChangesAsync();
-            return true;
+                if (await context.DetallesMatricula.AnyAsync(detalle =>
+                    detalle.DetalleOfertaAcademicaId == item.DetalleOfertaAcademicaId))
+                    return false;
+
+                context.DetallesHorario.Remove(item);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (DbUpdateException error) when (error.InnerException is SqlException sqlError
+                && (sqlError.Number == 547 || sqlError.Number == 1205))
+            {
+                if (item != null)
+                    context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
+            catch (SqlException error) when (error.Number == 1205)
+            {
+                if (item != null)
+                    context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
         }
     }
 }

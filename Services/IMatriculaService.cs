@@ -4,7 +4,7 @@ namespace App_Proyecto.Services
 {
     public interface IMatriculaService
     {
-        Task<HistorialMatriculaDto> GetHistorialAsync(
+        Task<HistorialMatriculaDto?> GetHistorialAsync(
            ConsultaHistorialDto consulta , CancellationToken cancellationToken = default);
         Task<MatriculaConsultaDto?> GetByIdAsync(
             int id, CancellationToken cancellationToken = default);

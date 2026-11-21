@@ -7,6 +7,8 @@ namespace App_Proyecto.Services
         Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
             int usuarioId, CrearMatriculaDto dto, CancellationToken cancellationToken);
 
+        Task<PerfilEstudianteDto?> GetPerfilAsync(int usuarioId, CancellationToken cancellationToken);
+
         Task<MatriculaConsultaDto?> GetByIdAsync(
             int usuarioId, int matriculaId, CancellationToken cancellationToken);
     }

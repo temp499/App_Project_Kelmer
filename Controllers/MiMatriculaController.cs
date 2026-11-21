@@ -13,6 +13,19 @@ namespace App_Proyecto.Controllers
         IPeriodoAcademicoService periodos) : Controller
     {
         [HttpGet]
+        public async Task<IActionResult> Perfil(CancellationToken cancellationToken)
+        {
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuarioId) || usuarioId <= 0)
+                return Unauthorized();
+
+            var perfil = await service.GetPerfilAsync(usuarioId, cancellationToken);
+            if (perfil == null)
+                return NotFound(new { message = "Tu cuenta no tiene un estudiante vinculado" });
+
+            return Ok(perfil);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Cursos()
         {
             return Ok(await cursos.GetAllAsync());

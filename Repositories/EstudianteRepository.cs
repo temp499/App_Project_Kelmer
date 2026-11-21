@@ -26,7 +26,43 @@ namespace App_Proyecto.Repositories
         {
             return await context.Estudiantes
                 .AsNoTracking()
+                .Include(estudiante => estudiante.Carrera)
                 .SingleOrDefaultAsync(estudiante => estudiante.UsuarioId == usuarioId, cancellationToken);
+        }
+
+        public async Task<bool> AsignarCarreraAsync(int estudianteId, int carreraId)
+        {
+            await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+            try
+            {
+                var estudiante = await context.Estudiantes.AsNoTracking()
+                    .SingleOrDefaultAsync(item => item.Id == estudianteId);
+                if (estudiante == null)
+                    return false;
+
+                if (estudiante.CarreraId == carreraId)
+                    return true;
+
+                if (estudiante.CarreraId.HasValue
+                    && await context.Matriculas.AnyAsync(matricula => matricula.EstudianteId == estudianteId))
+                    return false;
+
+                if (await context.DetallesMatricula.AnyAsync(detalle =>
+                    detalle.Matricula!.EstudianteId == estudianteId
+                    && detalle.DetalleOfertaAcademicaId.HasValue
+                    && detalle.DetalleOfertaAcademica!.OfertaAcademica!.PlanEstudio!.CarreraId != carreraId))
+                    return false;
+
+                var actualizados = await context.Estudiantes
+                    .Where(item => item.Id == estudianteId)
+                    .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.CarreraId, carreraId));
+                await transaction.CommitAsync();
+                return actualizados == 1;
+            }
+            catch (SqlException error) when (error.Number == 547 || error.Number == 1205)
+            {
+                return false;
+            }
         }
 
         public async Task<bool> VincularUsuarioAsync(int estudianteId, int usuarioId)

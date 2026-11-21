@@ -132,6 +132,12 @@ namespace App_Proyecto.Data
                 .HasForeignKey(detalle => detalle.DetalleOfertaAcademicaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Estudiante>()
+                .HasOne(estudiante => estudiante.Carrera)
+                .WithMany()
+                .HasForeignKey(estudiante => estudiante.CarreraId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
 

@@ -39,14 +39,31 @@ namespace App_Proyecto.Repositories
 
         public async Task<bool> UpdateAsync(OfertaAcademica item)
         {
-            context.OfertasAcademicas.Update(item);
+            await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
             try
             {
+                var actual = await context.OfertasAcademicas.AsNoTracking().SingleOrDefaultAsync(value => value.Id == item.Id);
+                if (actual == null)
+                    return false;
+
+                if ((actual.PlanEstudioId != item.PlanEstudioId
+                        || actual.PeriodoAcademicoId != item.PeriodoAcademicoId
+                        || actual.SedeId != item.SedeId)
+                    && await context.DetallesOfertaAcademica.AnyAsync(grupo => grupo.OfertaAcademicaId == item.Id))
+                    return false;
+
+                context.OfertasAcademicas.Update(item);
                 await context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return true;
             }
-            catch (DbUpdateException error) when (
-                error.InnerException is SqlException sqlError && (sqlError.Number == 547 || sqlError.Number == 2601 || sqlError.Number == 2627))
+            catch (DbUpdateException error) when (error.InnerException is SqlException sqlError
+                && (sqlError.Number == 547 || sqlError.Number == 2601 || sqlError.Number == 2627 || sqlError.Number == 1205))
+            {
+                context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
+            catch (SqlException error) when (error.Number == 1205)
             {
                 context.Entry(item).State = EntityState.Unchanged;
                 return false;

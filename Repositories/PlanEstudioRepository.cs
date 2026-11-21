@@ -39,14 +39,29 @@ namespace App_Proyecto.Repositories
 
         public async Task<bool> UpdateAsync(PlanEstudio item)
         {
-            context.PlanesEstudio.Update(item);
+            await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
             try
             {
+                var actual = await context.PlanesEstudio.AsNoTracking().SingleOrDefaultAsync(value => value.Id == item.Id);
+                if (actual == null)
+                    return false;
+
+                if (actual.CarreraId != item.CarreraId
+                    && await context.OfertasAcademicas.AnyAsync(oferta => oferta.PlanEstudioId == item.Id))
+                    return false;
+
+                context.PlanesEstudio.Update(item);
                 await context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return true;
             }
-            catch (DbUpdateException error) when (
-                error.InnerException is SqlException sqlError && sqlError.Number == 547)
+            catch (DbUpdateException error) when (error.InnerException is SqlException sqlError
+                && (sqlError.Number == 547 || sqlError.Number == 2601 || sqlError.Number == 2627 || sqlError.Number == 1205))
+            {
+                context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
+            catch (SqlException error) when (error.Number == 1205)
             {
                 context.Entry(item).State = EntityState.Unchanged;
                 return false;

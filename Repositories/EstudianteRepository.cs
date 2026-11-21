@@ -1,4 +1,4 @@
-using App_Proyecto.Data;
+﻿using App_Proyecto.Data;
 using App_Proyecto.DTOS;
 using App_Proyecto.Models;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +60,13 @@ namespace App_Proyecto.Repositories
                 return actualizados == 1;
             }
             catch (SqlException error) when (error.Number == 547 || error.Number == 1205)
+            {
+                return false;
+            }
+            catch (InvalidOperationException error) when (
+                (error.InnerException is SqlException sqlError && sqlError.Number == 1205)
+                || (error.InnerException is DbUpdateException updateError
+                    && updateError.InnerException is SqlException sqlUpdate && sqlUpdate.Number == 1205))
             {
                 return false;
             }

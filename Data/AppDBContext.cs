@@ -15,6 +15,7 @@ namespace App_Proyecto.Data
         public DbSet<UsuarioPermission> UsuarioPermissions => Set<UsuarioPermission>();
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
+        public DbSet<DetalleOfertaAcademica> DetallesOfertaAcademica => Set<DetalleOfertaAcademica>();
         public DbSet<OfertaAcademica> OfertasAcademicas => Set<OfertaAcademica>();
         public DbSet<DetallePlanEstudio> DetallesPlanEstudio => Set<DetallePlanEstudio>();
         public DbSet<PlanEstudio> PlanesEstudio => Set<PlanEstudio>();
@@ -84,6 +85,28 @@ namespace App_Proyecto.Data
                 .HasOne(item => item.PlanEstudio)
                 .WithMany()
                 .HasForeignKey(item => item.PlanEstudioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DetalleOfertaAcademica>()
+                .HasIndex(grupo => new { grupo.OfertaAcademicaId, grupo.CursoId, grupo.Grupo })
+                .IsUnique();
+
+            modelBuilder.Entity<DetalleOfertaAcademica>()
+                .HasOne(grupo => grupo.OfertaAcademica)
+                .WithMany()
+                .HasForeignKey(grupo => grupo.OfertaAcademicaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DetalleOfertaAcademica>()
+                .HasOne(grupo => grupo.Curso)
+                .WithMany()
+                .HasForeignKey(grupo => grupo.CursoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DetalleOfertaAcademica>()
+                .HasOne(grupo => grupo.Docente)
+                .WithMany()
+                .HasForeignKey(grupo => grupo.DocenteId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RolePermission>()

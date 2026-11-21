@@ -16,5 +16,6 @@ namespace App_Proyecto.Models
         public string Grupo { get; set; } = string.Empty;
 
         public int Cupo { get; set; }
+        public ICollection<DetalleHorario> Horarios { get; set; } = [];
     }
 }

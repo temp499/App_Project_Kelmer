@@ -15,6 +15,7 @@ namespace App_Proyecto.Data
         public DbSet<UsuarioPermission> UsuarioPermissions => Set<UsuarioPermission>();
         public DbSet<Estudiante> Estudiantes => Set<Estudiante>();
         public DbSet<Curso> Cursos => Set<Curso>();
+        public DbSet<DetalleHorario> DetallesHorario => Set<DetalleHorario>();
         public DbSet<DetalleOfertaAcademica> DetallesOfertaAcademica => Set<DetalleOfertaAcademica>();
         public DbSet<OfertaAcademica> OfertasAcademicas => Set<OfertaAcademica>();
         public DbSet<DetallePlanEstudio> DetallesPlanEstudio => Set<DetallePlanEstudio>();
@@ -107,6 +108,22 @@ namespace App_Proyecto.Data
                 .HasOne(grupo => grupo.Docente)
                 .WithMany()
                 .HasForeignKey(grupo => grupo.DocenteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<DetalleHorario>()
+                .HasIndex(horario => new { horario.DetalleOfertaAcademicaId, horario.DiaSemana, horario.HoraInicio })
+                .IsUnique();
+
+            modelBuilder.Entity<DetalleHorario>()
+                .HasOne(horario => horario.DetalleOfertaAcademica)
+                .WithMany(grupo => grupo.Horarios)
+                .HasForeignKey(horario => horario.DetalleOfertaAcademicaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DetalleHorario>()
+                .HasOne(horario => horario.Aula)
+                .WithMany()
+                .HasForeignKey(horario => horario.AulaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RolePermission>()

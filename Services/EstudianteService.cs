@@ -7,7 +7,8 @@ namespace App_Proyecto.Services;
 public class EstudianteService(
     IEstudianteRepository repository,
     ICursoRepository cursos,
-    IUsuarioRepository usuarios) : IEstudianteService
+    IUsuarioRepository usuarios,
+    ICarreraRepository carreras) : IEstudianteService
 {
     public Task<DataTableResponseDto<EstudianteTableDto>> GetPagedAsync(DataTablesRequestDto request) =>
         repository.GetPagedAsync(request);
@@ -52,6 +53,23 @@ public class EstudianteService(
         Apply(estudiante, dto);
         await repository.UpdateAsync(estudiante);
         return (true, null);
+    }
+
+    public async Task<(bool Success, string? ErrorMessage)> AsignarCarreraAsync(int estudianteId, int carreraId)
+    {
+        if (estudianteId <= 0 || carreraId <= 0)
+            return (false, "Selecciona un estudiante y una carrera validos");
+
+        if (await carreras.GetByIdAsync(carreraId) == null)
+            return (false, "La carrera no existe");
+
+        if (await repository.GetByIdAsync(estudianteId) == null)
+            return (false, "Estudiante no encontrado");
+
+        var asignado = await repository.AsignarCarreraAsync(estudianteId, carreraId);
+        return asignado
+            ? (true, null)
+            : (false, "No se pudo asignar la carrera, revisa si el estudiante ya tiene matriculas");
     }
 
     public async Task<(bool Success, string? ErrorMessage)> VincularUsuarioAsync(int estudianteId, int usuarioId)

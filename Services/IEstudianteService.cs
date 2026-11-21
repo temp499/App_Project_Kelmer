@@ -12,6 +12,7 @@ namespace App_Proyecto.Services
         Task<(bool Success, string? ErrorMessage)> CreateAsync(SaveEstudianteDto dto);
         Task<(bool Success, string? ErrorMessage)> UpdateAsync(SaveEstudianteDto dto);
         Task<(bool Success, string? ErrorMessage)> VincularUsuarioAsync(int estudianteId, int usuarioId);
+        Task<(bool Success, string? ErrorMessage)> AsignarCarreraAsync(int estudianteId, int carreraId);
         Task<(bool Success, string? ErrorMessage)> DeleteAsync(int id);
     }
 }

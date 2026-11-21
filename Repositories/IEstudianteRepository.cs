@@ -16,6 +16,7 @@ namespace App_Proyecto.Repositories
         Task<bool> TieneMatriculasAsync(int id);
         Task<Estudiante?> GetByUsuarioIdAsync(int usuarioId, CancellationToken cancellationToken);
         Task<bool> VincularUsuarioAsync(int estudianteId, int usuarioId);
+        Task<bool> AsignarCarreraAsync(int estudianteId, int carreraId);
         Task<bool> DeleteAsync(int Id);
 
     }

@@ -9,6 +9,20 @@ namespace App_Proyecto.Controllers
     {
         [Authorize(Roles = "Admin")]
         [HttpPost]
+        public async Task<IActionResult> AsignarCarrera(int id, [FromBody] AsignarCarreraDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Selecciona una carrera valida" });
+
+            var resultado = await estudianteService.AsignarCarreraAsync(id, dto.CarreraId);
+            if (!resultado.Success)
+                return BadRequest(new { message = resultado.ErrorMessage });
+
+            return Ok(new { message = "Carrera asignada correctamente" });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
         public async Task<IActionResult> VincularUsuario(int id, [FromBody] VincularEstudianteDto dto)
         {
             if (!ModelState.IsValid)

@@ -1,4 +1,4 @@
-namespace App_Proyecto.DTOS
+﻿namespace App_Proyecto.DTOS
 {
     public class MatriculaConsultaDto
     {
@@ -14,5 +14,8 @@ namespace App_Proyecto.DTOS
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
+        public int? GrupoId { get; set; }
+        public string Grupo { get; set; } = string.Empty;
+        public IReadOnlyList<HorarioGrupoDto> Horarios { get; set; } = [];
     }
 }

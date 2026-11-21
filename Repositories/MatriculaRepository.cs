@@ -10,6 +10,49 @@ namespace App_Proyecto.Repositories
 {
     public class MatriculaRepository(AppDBContext context) : IMatriculaRepository
     {
+        public async Task<IReadOnlyList<DTOS.GrupoDisponibleDto>> GetOfertaAsync(
+            int carreraId, int periodoId, CancellationToken cancellationToken)
+        {
+            return await context.DetallesOfertaAcademica.AsNoTracking()
+                .Where(grupo => grupo.OfertaAcademica!.Activa
+                    && grupo.OfertaAcademica.PeriodoAcademicoId == periodoId
+                    && grupo.OfertaAcademica.PeriodoAcademico!.MatriculaAbierta
+                    && grupo.OfertaAcademica.PlanEstudio!.Activo
+                    && grupo.OfertaAcademica.PlanEstudio.CarreraId == carreraId
+                    && grupo.Horarios.Any()
+                    && context.DetallesPlanEstudio.Any(detalle =>
+                        detalle.PlanEstudioId == grupo.OfertaAcademica.PlanEstudioId
+                        && detalle.CursoId == grupo.CursoId))
+                .OrderBy(grupo => grupo.Curso!.Nombre).ThenBy(grupo => grupo.Grupo).ThenBy(grupo => grupo.Id)
+                .Select(grupo => new DTOS.GrupoDisponibleDto
+                {
+                    Id = grupo.Id,
+                    CursoId = grupo.CursoId,
+                    CursoNombre = grupo.Curso!.Nombre,
+                    Grupo = grupo.Grupo,
+                    Sede = grupo.OfertaAcademica!.Sede!.Nombre,
+                    Docente = grupo.Docente!.Nombre + " " + grupo.Docente.Apellido,
+                    Cupo = grupo.Cupo,
+                    Inscritos = context.DetallesMatricula.Count(detalle => detalle.DetalleOfertaAcademicaId == grupo.Id),
+                    Horarios = grupo.Horarios.OrderBy(horario => horario.DiaSemana).ThenBy(horario => horario.HoraInicio)
+                        .Select(horario => new DTOS.HorarioGrupoDto
+                        {
+                            DiaSemana = horario.DiaSemana,
+                            HoraInicio = horario.HoraInicio,
+                            HoraFin = horario.HoraFin,
+                            Aula = horario.Aula!.Nombre
+                        }).ToList()
+                }).ToListAsync(cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<int>> GetIdsEstudianteAsync(int estudianteId, CancellationToken cancellationToken)
+        {
+            return await context.Matriculas.AsNoTracking()
+                .Where(matricula => matricula.EstudianteId == estudianteId)
+                .OrderByDescending(matricula => matricula.Id)
+                .Select(matricula => matricula.Id).ToListAsync(cancellationToken);
+        }
+
         public async Task<Matricula?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await context.Matriculas
@@ -19,6 +62,10 @@ namespace App_Proyecto.Repositories
                 .Include(matricula => matricula.PeriodoAcademico)
                 .Include(matricula => matricula.Detalles)
                     .ThenInclude(detalle => detalle.Curso)
+                .Include(matricula => matricula.Detalles)
+                    .ThenInclude(detalle => detalle.DetalleOfertaAcademica)
+                        .ThenInclude(grupo => grupo!.Horarios)
+                            .ThenInclude(horario => horario.Aula)
                 .SingleOrDefaultAsync(matricula => matricula.Id == id, cancellationToken);
         }
 

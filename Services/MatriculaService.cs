@@ -1,4 +1,4 @@
-using App_Proyecto.DTOS;
+﻿using App_Proyecto.DTOS;
 using App_Proyecto.Models;
 using App_Proyecto.Repositories;
 using System.ComponentModel.DataAnnotations;
@@ -31,7 +31,18 @@ namespace App_Proyecto.Services
                     {
                         Id = detalle.CursoId,
                         Nombre = detalle.Curso.Nombre,
-                        Descripcion = detalle.Curso.Descripcion
+                        Descripcion = detalle.Curso.Descripcion,
+                        GrupoId = detalle.DetalleOfertaAcademicaId,
+                        Grupo = detalle.DetalleOfertaAcademica?.Grupo ?? string.Empty,
+                        Horarios = detalle.DetalleOfertaAcademica?.Horarios
+                            .OrderBy(horario => horario.DiaSemana).ThenBy(horario => horario.HoraInicio)
+                            .Select(horario => new HorarioGrupoDto
+                            {
+                                DiaSemana = horario.DiaSemana,
+                                HoraInicio = horario.HoraInicio,
+                                HoraFin = horario.HoraFin,
+                                Aula = horario.Aula?.Nombre ?? string.Empty
+                            }).ToList() ?? []
                     }).ToList()
             };
         }

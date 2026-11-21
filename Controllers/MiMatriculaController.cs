@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using App_Proyecto.DTOS;
 using App_Proyecto.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +12,27 @@ namespace App_Proyecto.Controllers
         ICursoService cursos,
         IPeriodoAcademicoService periodos) : Controller
     {
+        [HttpGet]
+        public async Task<IActionResult> Oferta(int periodoId, CancellationToken cancellationToken)
+        {
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuarioId) || usuarioId <= 0)
+                return Unauthorized();
+
+            if (periodoId <= 0)
+                return BadRequest(new { message = "Selecciona un periodo valido" });
+
+            return Ok(await service.GetOfertaAsync(usuarioId, periodoId, cancellationToken));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Historial(CancellationToken cancellationToken)
+        {
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuarioId) || usuarioId <= 0)
+                return Unauthorized();
+
+            return Ok(await service.GetHistorialAsync(usuarioId, cancellationToken));
+        }
+
         [HttpGet]
         public async Task<IActionResult> Perfil(CancellationToken cancellationToken)
         {

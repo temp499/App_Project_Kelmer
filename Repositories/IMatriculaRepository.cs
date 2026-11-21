@@ -8,6 +8,7 @@ namespace App_Proyecto.Repositories
 
         Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
             Matricula matricula,
+            int[] grupoIds,
             CancellationToken cancellationToken);
     }
 }

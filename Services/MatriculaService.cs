@@ -47,14 +47,15 @@ namespace App_Proyecto.Services
                 return (null, "Selecciona un periodo academico");
 
             var cursoIds = dto.CursoIds;
-            if (cursoIds is null || cursoIds.Length == 0)
-                return (null, "Selecciona al menos un curso");
+            var grupoIds = dto.GrupoIds;
+            if (cursoIds == null || grupoIds == null || (cursoIds.Length == 0 && grupoIds.Length == 0))
+                return (null, "Selecciona al menos un curso o grupo");
 
-            if (cursoIds.Any(id => id <= 0))
-                return (null, "La seleccion contiene un curso no valido");
+            if (cursoIds.Any(id => id <= 0) || grupoIds.Any(id => id <= 0))
+                return (null, "La seleccion contiene un registro no valido");
 
-            if (cursoIds.Distinct().Count() != cursoIds.Length)
-                return (null, "No puedes seleccionar el mismo curso mas de una vez");
+            if (cursoIds.Distinct().Count() != cursoIds.Length || grupoIds.Distinct().Count() != grupoIds.Length)
+                return (null, "No puedes seleccionar el mismo curso o grupo mas de una vez");
 
             var matricula = new Matricula
             {
@@ -65,7 +66,7 @@ namespace App_Proyecto.Services
                     .ToList()
             };
 
-            return await repository.CreateAsync(matricula, cancellationToken);
+            return await repository.CreateAsync(matricula, grupoIds, cancellationToken);
         }
     }
 }

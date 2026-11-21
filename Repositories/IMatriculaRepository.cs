@@ -9,6 +9,7 @@ namespace App_Proyecto.Repositories
 
         Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
             Matricula matricula,
+            int[] grupoIds,
             CancellationToken cancellationToken);
         Task<HistorialMatriculaDto?> GetHistorialAsync(ConsultaHistorialDto consulta, CancellationToken cancellationToken);
     }

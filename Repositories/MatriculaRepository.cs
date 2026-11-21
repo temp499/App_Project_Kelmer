@@ -10,8 +10,6 @@ namespace App_Proyecto.Repositories
 {
     public class MatriculaRepository(AppDBContext context) : IMatriculaRepository
     {
-        private const int DuplicateIndexError = 2601;
-
         public async Task<Matricula?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await context.Matriculas
@@ -25,51 +23,128 @@ namespace App_Proyecto.Repositories
         }
 
         public async Task<(int? MatriculaId, string? ErrorMessage)> CreateAsync(
-            Matricula matricula,
-            CancellationToken cancellationToken)
+            Matricula matricula, int[] grupoIds, CancellationToken cancellationToken)
         {
             await using var transaction = await context.Database.BeginTransactionAsync(
-                IsolationLevel.RepeatableRead, cancellationToken);
-
-            var matriculaAbierta = await context.PeriodosAcademicos
-                .Where(periodo => periodo.Id == matricula.PeriodoAcademicoId)
-                .Select(periodo => (bool?)periodo.MatriculaAbierta)
-                .SingleOrDefaultAsync(cancellationToken);
-
-            if (matriculaAbierta is null)
-                return (null, "El periodo academico no existe");
-
-            if (matriculaAbierta == false)
-                return (null, "La matricula esta cerrada para este periodo");
-
-            if (!await context.Estudiantes.AnyAsync(e => e.Id == matricula.EstudianteId, cancellationToken))
-                return (null, "El estudiante no existe");
-
-            var cursoIds = matricula.Detalles.Select(detalle => detalle.CursoId).ToArray();
-            var cursosEncontrados = await context.Cursos
-                .CountAsync(curso => cursoIds.Contains(curso.Id), cancellationToken);
-
-            if (cursosEncontrados != cursoIds.Length)
-                return (null, "Uno o mas cursos seleccionados no existen");
-
-            context.Matriculas.Add(matricula);
-
+                IsolationLevel.Serializable, cancellationToken);
             try
             {
+                var abierta = await context.PeriodosAcademicos.AnyAsync(periodo =>
+                    periodo.Id == matricula.PeriodoAcademicoId && periodo.MatriculaAbierta, cancellationToken);
+                if (!abierta)
+                    return (null, "El periodo no existe o la matricula esta cerrada");
+
+                var estudiante = await context.Estudiantes.AsNoTracking()
+                    .SingleOrDefaultAsync(item => item.Id == matricula.EstudianteId, cancellationToken);
+                if (estudiante?.CarreraId == null)
+                    return (null, "El estudiante no existe o no tiene una carrera asignada");
+
+                if (await context.Matriculas.AnyAsync(item => item.EstudianteId == estudiante.Id
+                    && item.PeriodoAcademicoId == matricula.PeriodoAcademicoId, cancellationToken))
+                    return (null, "El estudiante ya tiene matricula en este periodo");
+
+                var cursoIds = matricula.Detalles.Select(detalle => detalle.CursoId).ToArray();
+                var query = context.DetallesOfertaAcademica
+                    .Include(grupo => grupo.OfertaAcademica)
+                        .ThenInclude(oferta => oferta!.PlanEstudio)
+                    .Include(grupo => grupo.Horarios)
+                    .Where(grupo => grupo.OfertaAcademica!.Activa
+                        && grupo.OfertaAcademica.PeriodoAcademicoId == matricula.PeriodoAcademicoId
+                        && grupo.OfertaAcademica.PlanEstudio!.Activo
+                        && grupo.OfertaAcademica.PlanEstudio.CarreraId == estudiante.CarreraId);
+
+                if (grupoIds.Length > 0)
+                    query = query.Where(grupo => grupoIds.Contains(grupo.Id));
+                else
+                    query = query.Where(grupo => cursoIds.Contains(grupo.CursoId));
+
+                var disponibles = await query.OrderBy(grupo => grupo.Id).ToListAsync(cancellationToken);
+                var seleccionados = new List<DetalleOfertaAcademica>();
+                if (grupoIds.Length > 0)
+                {
+                    if (disponibles.Count != grupoIds.Length)
+                        return (null, "Uno o mas grupos no estan disponibles para tu carrera y periodo");
+
+                    seleccionados = disponibles;
+                }
+                else
+                {
+                    foreach (var cursoId in cursoIds)
+                    {
+                        var opciones = disponibles.Where(grupo => grupo.CursoId == cursoId).ToList();
+                        if (opciones.Count == 0)
+                            return (null, "Uno de los cursos no tiene oferta para tu carrera y periodo");
+                        if (opciones.Count > 1)
+                            return (null, "Selecciona el grupo de cada curso que tiene varias opciones");
+
+                        seleccionados.Add(opciones[0]);
+                    }
+                }
+
+                if (seleccionados.Count == 0)
+                    return (null, "Selecciona al menos un curso o grupo");
+
+                if (seleccionados.Select(grupo => grupo.CursoId).Distinct().Count() != seleccionados.Count)
+                    return (null, "No puedes matricular dos grupos del mismo curso");
+
+                if (cursoIds.Length > 0 && (cursoIds.Length != seleccionados.Count
+                    || seleccionados.Any(grupo => !cursoIds.Contains(grupo.CursoId))))
+                    return (null, "Los cursos no coinciden con los grupos seleccionados");
+
+                foreach (var grupo in seleccionados)
+                {
+                    if (!await context.DetallesPlanEstudio.AnyAsync(detalle =>
+                        detalle.PlanEstudioId == grupo.OfertaAcademica!.PlanEstudioId
+                        && detalle.CursoId == grupo.CursoId, cancellationToken))
+                        return (null, "Uno de los cursos no pertenece al plan de estudio");
+
+                    if (grupo.Horarios.Count == 0)
+                        return (null, "Uno de los grupos no tiene horarios asignados");
+
+                    var inscritos = await context.DetallesMatricula.CountAsync(detalle =>
+                        detalle.DetalleOfertaAcademicaId == grupo.Id, cancellationToken);
+                    if (inscritos >= grupo.Cupo)
+                        return (null, "Uno de los grupos ya no tiene cupos disponibles");
+
+                    foreach (var horario in grupo.Horarios)
+                    {
+                        if (seleccionados.Any(otro => otro.Id != grupo.Id && otro.Horarios.Any(hora =>
+                            hora.DiaSemana == horario.DiaSemana
+                            && hora.HoraInicio < horario.HoraFin && horario.HoraInicio < hora.HoraFin)))
+                            return (null, "Los grupos seleccionados tienen cruces de horario");
+                    }
+                }
+
+                matricula.Detalles = seleccionados.Select(grupo => new DetalleMatricula
+                {
+                    CursoId = grupo.CursoId,
+                    DetalleOfertaAcademicaId = grupo.Id
+                }).ToList();
+                context.Matriculas.Add(matricula);
                 await context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                return (matricula.Id, null);
             }
-            catch (DbUpdateException error) when (
-                error.InnerException is SqlException sqlError && sqlError.Number == DuplicateIndexError)
+            catch (DbUpdateException error) when (error.InnerException is SqlException sqlError
+                && (sqlError.Number == 2601 || sqlError.Number == 2627 || sqlError.Number == 547 || sqlError.Number == 1205))
             {
                 foreach (var detalle in matricula.Detalles.ToArray())
                     context.Entry(detalle).State = EntityState.Detached;
-
                 context.Entry(matricula).State = EntityState.Detached;
-                return (null, "El estudiante ya tiene matricula en este periodo");
+                return (null, "No se pudo registrar, revisa la matricula y vuelve a intentarlo");
             }
-
-            await transaction.CommitAsync(cancellationToken);
-            return (matricula.Id, null);
+            catch (SqlException error) when (error.Number == 1205)
+            {
+                return (null, "Otra solicitud esta usando los mismos cupos, vuelve a intentarlo");
+            }
+            catch (InvalidOperationException error) when (error.InnerException is DbUpdateException updateError
+                && updateError.InnerException is SqlException sqlError && sqlError.Number == 1205)
+            {
+                foreach (var detalle in matricula.Detalles.ToArray())
+                    context.Entry(detalle).State = EntityState.Detached;
+                context.Entry(matricula).State = EntityState.Detached;
+                return (null, "Otra solicitud esta usando los mismos cupos, vuelve a intentarlo");
+            }
         }
 
         public async Task<HistorialMatriculaDto?> GetHistorialAsync(

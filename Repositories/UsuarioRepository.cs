@@ -9,7 +9,7 @@ namespace App_Proyecto.Repositories
         private IQueryable<Usuario> UserWithPermission =>
         context.Usuarios
         .Include(u => u.Rol)
-        .ThenInclude(r => r.RolePermissions)
+        .ThenInclude(r => r!.RolePermissions)
         .ThenInclude(rp => rp.Permission)
         .Include(u => u.UsuarioPermissions)
         .ThenInclude(up => up.Permission);

@@ -1,4 +1,4 @@
-const appRequests = {
+﻿const appRequests = {
     token: () => document.querySelector('#request-token input').value,
     statusMessage: status => ({
         400: "La solicitud contiene datos inválidos.",
@@ -100,3 +100,11 @@ document.querySelector("[data-resend]")?.addEventListener("click", async event =
         button.disabled = false;
     }
 });
+
+for (const link of document.querySelectorAll(".sidebar .nav-link")) {
+    const controller = new URL(link.href).pathname.split("/")[1] || "Home";
+    if (controller === document.body.dataset.controller) {
+        link.classList.add("active");
+        link.setAttribute("aria-current", "page");
+    }
+}

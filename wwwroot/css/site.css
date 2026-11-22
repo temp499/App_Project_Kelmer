@@ -200,6 +200,9 @@ h1, h2, h3 {
 .table-responsive {
     min-width: 0;
 }
+.table-responsive > .table {
+    min-width: 640px;
+}
 .modal-content {
     border: 1px solid var(--border-color);
     border-radius: 6px;

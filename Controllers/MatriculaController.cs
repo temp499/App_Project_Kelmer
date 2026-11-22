@@ -8,8 +8,21 @@ namespace App_Proyecto.Controllers
     [Authorize(Roles = "Admin")]
 
 
-    public class MatriculaController(IMatriculaService service) : Controller
+    public class MatriculaController(
+        IMatriculaService service,
+        IEstudianteService estudiantes,
+        IRolePermissionService usuarios,
+        ICarreraService carreras) : Controller
     {
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            ViewBag.Estudiantes = await estudiantes.GetAllAsync();
+            ViewBag.Usuarios = await usuarios.GetAllUsersAsync();
+            ViewBag.Carreras = await carreras.GetAllAsync();
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(
             [FromQuery] int estudianteId,

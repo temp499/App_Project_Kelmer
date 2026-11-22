@@ -177,6 +177,8 @@ namespace App_Proyecto.Repositories
                 Nombre = e.Nombre ?? string.Empty,
                 Apellido = e.Apellido ?? string.Empty,
                 Email = e.Email ?? string.Empty,
+                CarreraId = e.CarreraId,
+                UsuarioId = e.UsuarioId,
                 CursoId = e.CursoId,
                 CursoNombre = e.Curso!.Nombre
             };

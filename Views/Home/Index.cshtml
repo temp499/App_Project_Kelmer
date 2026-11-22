@@ -1,4 +1,6 @@
-﻿@{ ViewData["Title"] = "Inicio"; }
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
 <div class="mb-4">
     <h1 class="h3">Inicio</h1>
     <p class="text-muted">Bienvenido, @User.Identity?.Name</p>
@@ -10,39 +12,59 @@
 <div class="row g-3">
     @if (User.IsInRole("Admin"))
     {
-        <div class="col-md-6"><div class="card h-100"><div class="card-body">
-            <h2 class="h5">Gestion academica</h2>
-            <p class="text-muted">Prepara los periodos, planes, grupos y horarios de la oferta.</p>
-            <a class="btn btn-outline-primary" asp-controller="Academico" asp-action="Index">Preparar oferta</a>
-        </div></div></div>
-        <div class="col-md-6"><div class="card h-100"><div class="card-body">
-            <h2 class="h5">Matriculas</h2>
-            <p class="text-muted">Vincula las cuentas y consulta el historial de los estudiantes.</p>
-            <a class="btn btn-outline-primary" asp-controller="Matricula" asp-action="Index">Ver matriculas</a>
-        </div></div></div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Gestion academica</h2>
+                    <p class="text-muted">Prepara los periodos, planes, grupos y horarios de la oferta.</p>
+                    <a class="btn btn-outline-primary" asp-controller="Academico" asp-action="Index">Preparar oferta</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Matriculas</h2>
+                    <p class="text-muted">Vincula las cuentas y consulta el historial de los estudiantes.</p>
+                    <a class="btn btn-outline-primary" asp-controller="Matricula" asp-action="Index">Ver matriculas</a>
+                </div>
+            </div>
+        </div>
     }
     else
     {
-        <div class="col-md-6"><div class="card h-100"><div class="card-body">
-            <h2 class="h5">Mi matricula</h2>
-            <p class="text-muted">Elige tus grupos disponibles y consulta los cursos matriculados.</p>
-            <a class="btn btn-primary" asp-controller="MiMatricula" asp-action="Index">Abrir mi matricula</a>
-        </div></div></div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Mi matricula</h2>
+                    <p class="text-muted">Elige tus grupos disponibles y consulta los cursos matriculados.</p>
+                    <a class="btn btn-primary" asp-controller="MiMatricula" asp-action="Index">Abrir mi matricula</a>
+                </div>
+            </div>
+        </div>
     }
     @if (User.HasPermission("estudiante.ver"))
     {
-        <div class="col-md-6"><div class="card h-100"><div class="card-body">
-            <h2 class="h5">Estudiantes</h2>
-            <p class="text-muted">Consulta y actualiza los datos de los estudiantes.</p>
-            <a class="btn btn-outline-primary" asp-controller="Estudiante" asp-action="Index">Ver estudiantes</a>
-        </div></div></div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Estudiantes</h2>
+                    <p class="text-muted">Consulta y actualiza los datos de los estudiantes.</p>
+                    <a class="btn btn-outline-primary" asp-controller="Estudiante" asp-action="Index">Ver estudiantes</a>
+                </div>
+            </div>
+        </div>
     }
     @if (User.HasPermission("curso.ver"))
     {
-        <div class="col-md-6"><div class="card h-100"><div class="card-body">
-            <h2 class="h5">Cursos</h2>
-            <p class="text-muted">Revisa los cursos registrados en la universidad.</p>
-            <a class="btn btn-outline-primary" asp-controller="Curso" asp-action="Index">Ver cursos</a>
-        </div></div></div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">Cursos</h2>
+                    <p class="text-muted">Revisa los cursos registrados en la universidad.</p>
+                    <a class="btn btn-outline-primary" asp-controller="Curso" asp-action="Index">Ver cursos</a>
+                </div>
+            </div>
+        </div>
     }
 </div>

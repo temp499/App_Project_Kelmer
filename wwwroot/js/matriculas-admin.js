@@ -11,7 +11,9 @@ async function showEnrollmentDetail(id, button) {
     button.disabled = true;
     try {
         const item = await appRequests.send(`/Matricula/GetById?id=${id}`);
-        if (adminStudent.value !== studentId) return;
+        if (adminStudent.value !== studentId) {
+            return;
+        }
         const list = document.querySelector("#detail-courses");
         list.replaceChildren();
         document.querySelector("#detail-title").textContent = `${item.periodoNombre} - Matricula ${item.id}`;
@@ -24,9 +26,14 @@ async function showEnrollmentDetail(id, button) {
             list.append(row);
         }
         document.querySelector("#enrollment-detail").classList.remove("d-none");
-        document.querySelector("#enrollment-detail").scrollIntoView({ block: "nearest" });
-    } catch (error) { showActionMessage(error.message, true); }
-    finally { button.disabled = false; }
+        document.querySelector("#enrollment-detail").scrollIntoView({
+            block: "nearest"
+        });
+    } catch (error) {
+        showActionMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
 }
 
 async function loadAdminHistory() {
@@ -88,27 +95,34 @@ function updateStudentSettings() {
     document.querySelector("#account-status").textContent = linked
         ? "Este estudiante ya tiene una cuenta vinculada." : "Selecciona la cuenta que pertenece al estudiante.";
 }
-
 adminStudent.addEventListener("change", () => {
     historyPage = 1;
     updateStudentSettings();
     loadAdminHistory();
 });
 previousHistory.addEventListener("click", () => {
-    if (historyLoading || historyPage <= 1) return;
+    if (historyLoading || historyPage <= 1) {
+        return;
+    }
     historyPage--;
     loadAdminHistory();
 });
 nextHistory.addEventListener("click", () => {
-    if (historyLoading) return;
+    if (historyLoading) {
+        return;
+    }
     historyPage++;
     loadAdminHistory();
 });
 
 async function saveStudentSetting(event, action, name, select) {
     event.preventDefault();
-    if (!adminStudent.value || !select.value) return;
-    if (!confirm("Guardar esta asignacion para el estudiante seleccionado?")) return;
+    if (!adminStudent.value || !select.value) {
+        return;
+    }
+    if (!confirm("Guardar esta asignacion para el estudiante seleccionado?")) {
+        return;
+    }
     const button = event.submitter;
     const option = adminStudent.selectedOptions[0];
     const studentId = adminStudent.value;
@@ -117,16 +131,18 @@ async function saveStudentSetting(event, action, name, select) {
     adminStudent.disabled = true;
     document.querySelector("#student-settings").disabled = true;
     try {
-        const result = await appRequests.send(`/Estudiante/${action}?id=${studentId}`, "POST", { [name]: Number(value) });
+        const result = await appRequests.send(`/Estudiante/${action}?id=${studentId}`, "POST", {
+            [name]: Number(value)
+        });
         showActionMessage(result.message);
         option.dataset[name === "usuarioId" ? "account" : "career"] = value;
-    } catch (error) { showActionMessage(error.message, true); }
-    finally {
+    } catch (error) {
+        showActionMessage(error.message, true);
+    } finally {
         button.disabled = false;
         adminStudent.disabled = false;
         updateStudentSettings();
     }
 }
-
 document.querySelector("#link-account").addEventListener("submit", event => saveStudentSetting(event, "VincularUsuario", "usuarioId", studentAccount));
 document.querySelector("#assign-career").addEventListener("submit", event => saveStudentSetting(event, "AsignarCarrera", "carreraId", studentCareer));

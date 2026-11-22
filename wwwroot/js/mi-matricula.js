@@ -93,23 +93,26 @@ async function loadEnrollmentOffer() {
         updateEnrollmentSelection();
     }
 }
-
 offerBody.addEventListener("change", event => {
     if (event.target.checked) {
         for (const input of offerBody.querySelectorAll("input:checked")) {
-            if (input !== event.target && input.dataset.course === event.target.dataset.course)
+            if (input !== event.target && input.dataset.course === event.target.dataset.course) {
                 input.checked = false;
+            }
         }
     }
     updateEnrollmentSelection();
 });
-
 periodSelect.addEventListener("change", loadEnrollmentOffer);
-enrollmentForm.addEventListener("submit", async event => {
+enrollmentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const groups = selectedGroups();
-    if (groups.length === 0 || loadingOffer) return;
-    if (!confirm(`Confirmar la matricula de ${groups.length} grupos?`)) return;
+    if (groups.length === 0 || loadingOffer) {
+        return;
+    }
+    if (!confirm(`Confirmar la matricula de ${groups.length} grupos?`)) {
+        return;
+    }
     enrollmentFields.disabled = true;
     enrollmentButton.textContent = "Guardando...";
     try {
@@ -146,13 +149,13 @@ async function initializeEnrollment() {
             periodSelect.append(option);
         }
         enrollmentFields.disabled = periods.length === 0;
-        if (periods.length === 0)
+        if (periods.length === 0) {
             offerStatus.textContent = "No hay periodos de matricula abiertos.";
+        }
     } catch (error) {
         document.querySelector("#student-profile").textContent = "No se pudieron cargar tus datos. Si tu cuenta aun no esta vinculada, solicita la vinculacion al administrador.";
         document.querySelector("#history-status").textContent = "No se pudo cargar el historial.";
         showActionMessage(error.message, true);
     }
 }
-
 initializeEnrollment();

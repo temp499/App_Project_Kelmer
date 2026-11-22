@@ -2,96 +2,241 @@ const academicModules = {
     Facultad: {
         title: "Facultades",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["descripcion", "Descripcion", "textarea"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "descripcion",
+                label: "Descripcion",
+                type: "textarea"
+            }
         ]
     },
     Carrera: {
         title: "Carreras",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["facultadId", "Facultad", "Facultad"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "facultadId",
+                label: "Facultad",
+                type: "Facultad"
+            }
         ]
     },
     Sede: {
         title: "Sedes",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["descripcion", "Descripcion", "textarea"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "descripcion",
+                label: "Descripcion",
+                type: "textarea"
+            }
         ]
     },
     Aula: {
         title: "Aulas",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["sedeId", "Sede", "Sede"],
-            ["capacidad", "Capacidad", "number"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "sedeId",
+                label: "Sede",
+                type: "Sede"
+            },
+            {
+                name: "capacidad",
+                label: "Capacidad",
+                type: "number"
+            }
         ]
     },
     Docente: {
         title: "Docentes",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["apellido", "Apellido", "text"],
-            ["email", "Correo", "email"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "apellido",
+                label: "Apellido",
+                type: "text"
+            },
+            {
+                name: "email",
+                label: "Correo",
+                type: "email"
+            }
         ]
     },
     PeriodoAcademico: {
         title: "Periodos",
         noDelete: true,
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["matriculaAbierta", "Matricula abierta", "boolean"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "matriculaAbierta",
+                label: "Matricula abierta",
+                type: "boolean"
+            }
         ]
     },
     PlanEstudio: {
         title: "Planes de estudio",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["carreraId", "Carrera", "Carrera"],
-            ["activo", "Activo", "boolean"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "carreraId",
+                label: "Carrera",
+                type: "Carrera"
+            },
+            {
+                name: "activo",
+                label: "Activo",
+                type: "boolean"
+            }
         ]
     },
     DetallePlanEstudio: {
         title: "Cursos del plan",
         fields: [
-            ["planEstudioId", "Plan", "PlanEstudio"],
-            ["cursoId", "Curso", "Cursos"],
-            ["creditos", "Creditos", "number"],
-            ["semestre", "Semestre", "number"]
+            {
+                name: "planEstudioId",
+                label: "Plan",
+                type: "PlanEstudio"
+            },
+            {
+                name: "cursoId",
+                label: "Curso",
+                type: "Cursos"
+            },
+            {
+                name: "creditos",
+                label: "Creditos",
+                type: "number"
+            },
+            {
+                name: "semestre",
+                label: "Semestre",
+                type: "number"
+            }
         ]
     },
     OfertaAcademica: {
         title: "Oferta academica",
         fields: [
-            ["nombre", "Nombre", "text"],
-            ["planEstudioId", "Plan", "PlanEstudio"],
-            ["periodoAcademicoId", "Periodo", "PeriodoAcademico"],
-            ["sedeId", "Sede", "Sede"],
-            ["activa", "Activa", "boolean"]
+            {
+                name: "nombre",
+                label: "Nombre",
+                type: "text"
+            },
+            {
+                name: "planEstudioId",
+                label: "Plan",
+                type: "PlanEstudio"
+            },
+            {
+                name: "periodoAcademicoId",
+                label: "Periodo",
+                type: "PeriodoAcademico"
+            },
+            {
+                name: "sedeId",
+                label: "Sede",
+                type: "Sede"
+            },
+            {
+                name: "activa",
+                label: "Activa",
+                type: "boolean"
+            }
         ]
     },
     DetalleOfertaAcademica: {
         title: "Grupos",
         fields: [
-            ["grupo", "Grupo", "text"],
-            ["ofertaAcademicaId", "Oferta", "OfertaAcademica"],
-            ["cursoId", "Curso", "Cursos"],
-            ["docenteId", "Docente", "Docente"],
-            ["cupo", "Cupo", "number"]
+            {
+                name: "grupo",
+                label: "Grupo",
+                type: "text"
+            },
+            {
+                name: "ofertaAcademicaId",
+                label: "Oferta",
+                type: "OfertaAcademica"
+            },
+            {
+                name: "cursoId",
+                label: "Curso",
+                type: "Cursos"
+            },
+            {
+                name: "docenteId",
+                label: "Docente",
+                type: "Docente"
+            },
+            {
+                name: "cupo",
+                label: "Cupo",
+                type: "number"
+            }
         ]
     },
     DetalleHorario: {
         title: "Horarios",
         fields: [
-            ["detalleOfertaAcademicaId", "Grupo", "DetalleOfertaAcademica"],
-            ["aulaId", "Aula", "Aula"],
-            ["diaSemana", "Dia", "day"],
-            ["horaInicio", "Hora de inicio", "time"],
-            ["horaFin", "Hora de fin", "time"]
+            {
+                name: "detalleOfertaAcademicaId",
+                label: "Grupo",
+                type: "DetalleOfertaAcademica"
+            },
+            {
+                name: "aulaId",
+                label: "Aula",
+                type: "Aula"
+            },
+            {
+                name: "diaSemana",
+                label: "Dia",
+                type: "day"
+            },
+            {
+                name: "horaInicio",
+                label: "Hora de inicio",
+                type: "time"
+            },
+            {
+                name: "horaFin",
+                label: "Hora de fin",
+                type: "time"
+            }
         ]
     }
 };
+
 const academicSelect = document.querySelector("#academic-module");
 const academicForm = document.querySelector("#academic-form");
 const academicModal = new bootstrap.Modal("#academic-modal");
@@ -110,10 +255,16 @@ function academicName(source, item) {
 }
 
 function academicText(field, value) {
-    const type = field[2];
-    if (type === "boolean") return value ? "Si" : "No";
-    if (type === "day") return ["", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"][value];
-    if (type === "time") return value?.slice(0, 5) || "";
+    const type = field.type;
+    if (type === "boolean") {
+        return value ? "Si" : "No";
+    }
+    if (type === "day") {
+        return ["", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"][value];
+    }
+    if (type === "time") {
+        return value?.slice(0, 5) || "";
+    }
     if (academicReferences[type]) {
         const item = academicReferences[type].find(record => record.id === value);
         return item ? academicName(type, item) : "Sin referencia";
@@ -127,8 +278,10 @@ function renderAcademicRows() {
     const search = document.querySelector("#academic-search").value.toLowerCase().trim();
     body.replaceChildren();
     for (const item of academicRows) {
-        const values = module.fields.map(field => academicText(field, item[field[0]]));
-        if (search && !values.join(" ").toLowerCase().includes(search)) continue;
+        const values = module.fields.map(field => academicText(field, item[field.name]));
+        if (search && !values.join(" ").toLowerCase().includes(search)) {
+            continue;
+        }
         const row = document.createElement("tr");
         for (const value of values) {
             const cell = document.createElement("td");
@@ -137,12 +290,22 @@ function renderAcademicRows() {
         }
         const actions = document.createElement("td");
         actions.className = "text-nowrap";
-        for (const action of module.noDelete ? ["Editar"] : ["Editar", "Eliminar"]) {
+        const availableActions = ["Editar"];
+        if (!module.noDelete) {
+            availableActions.push("Eliminar");
+        }
+        for (const action of availableActions) {
             const button = document.createElement("button");
             button.type = "button";
             button.className = `btn btn-sm me-2 ${action === "Editar" ? "btn-outline-primary" : "btn-outline-danger"}`;
             button.textContent = action;
-            button.addEventListener("click", () => action === "Editar" ? openAcademicEditor(item) : deleteAcademicItem(item, button));
+            button.addEventListener("click", () => {
+                if (action === "Editar") {
+                    openAcademicEditor(item);
+                } else {
+                    deleteAcademicItem(item, button);
+                }
+            });
             actions.append(button);
         }
         row.append(actions);
@@ -160,17 +323,27 @@ async function loadAcademicModule() {
     try {
         const module = academicModules[academicSelect.value];
         document.querySelector("#academic-title").textContent = module.title;
-        const sources = new Set(module.fields.map(field => field[2]).filter(type => !academicTypes.includes(type)));
-        if (sources.has("DetalleOfertaAcademica")) {
-            sources.add("Cursos");
-            sources.add("OfertaAcademica");
+        const sources = [];
+        for (const field of module.fields) {
+            const type = field.type;
+            if (!academicTypes.includes(type) && !sources.includes(type)) {
+                sources.push(type);
+            }
         }
-        await Promise.all([...sources].map(async source => {
-            academicReferences[source] = await appRequests.send(source === "Cursos" ? "/MiMatricula/Cursos" : `/${source}/GetData`);
-        }));
+        if (sources.includes("DetalleOfertaAcademica")) {
+            sources.push("Cursos");
+            sources.push("OfertaAcademica");
+        }
+        for (const source of sources) {
+            let url = `/${source}/GetData`;
+            if (source === "Cursos") {
+                url = "/MiMatricula/Cursos";
+            }
+            academicReferences[source] = await appRequests.send(url);
+        }
         academicRows = await appRequests.send(`/${academicSelect.value}/GetData`);
         const header = document.createElement("tr");
-        for (const text of [...module.fields.map(field => field[1]), "Acciones"]) {
+        for (const text of [...module.fields.map(field => field.label), "Acciones"]) {
             const cell = document.createElement("th");
             cell.scope = "col";
             cell.textContent = text;
@@ -203,7 +376,10 @@ function openAcademicEditor(item) {
     academicForm.elements.id.value = item?.id || "";
     document.querySelector("#academic-error").classList.add("d-none");
     document.querySelector("#academic-editor-title").textContent = item ? "Editar registro" : "Nuevo registro";
-    for (const [name, label, type] of academicModules[academicSelect.value].fields) {
+    for (const field of academicModules[academicSelect.value].fields) {
+        const name = field.name;
+        const label = field.label;
+        const type = field.type;
         const container = document.createElement("div");
         container.className = "mb-3";
         const caption = document.createElement("label");
@@ -212,14 +388,23 @@ function openAcademicEditor(item) {
         caption.textContent = label;
         const reference = academicReferences[type];
         const select = reference || type === "boolean" || type === "day";
-        const input = document.createElement(select ? "select" : type === "textarea" ? "textarea" : "input");
+        let input;
+        if (select) {
+            input = document.createElement("select");
+        } else if (type === "textarea") {
+            input = document.createElement("textarea");
+        } else {
+            input = document.createElement("input");
+        }
         input.className = select ? "form-select" : "form-control";
         input.id = caption.htmlFor;
         input.name = name;
         input.required = type !== "textarea";
         if (reference) {
             addAcademicOption(input, "", "Selecciona una opcion");
-            for (const option of reference) addAcademicOption(input, option.id, academicName(type, option));
+            for (const option of reference) {
+                addAcademicOption(input, option.id, academicName(type, option));
+            }
         } else if (type === "boolean") {
             addAcademicOption(input, "false", "No");
             addAcademicOption(input, "true", "Si");
@@ -228,12 +413,25 @@ function openAcademicEditor(item) {
             ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"].forEach((day, index) => addAcademicOption(input, index + 1, day));
         } else {
             input.type = type;
-            if (type === "number") { input.min = "1"; input.max = "2147483647"; input.step = "1"; }
-            if (type === "text") { input.minLength = name === "grupo" ? 1 : 2; input.maxLength = name === "grupo" ? 20 : 100; }
-            if (type === "email") input.maxLength = 150;
-            if (type === "textarea") input.maxLength = 250;
+            if (type === "number") {
+                input.min = "1";
+                input.max = "2147483647";
+                input.step = "1";
+            }
+            if (type === "text") {
+                input.minLength = name === "grupo" ? 1 : 2;
+                input.maxLength = name === "grupo" ? 20 : 100;
+            }
+            if (type === "email") {
+                input.maxLength = 150;
+            }
+            if (type === "textarea") {
+                input.maxLength = 250;
+            }
         }
-        if (item) input.value = type === "time" ? item[name].slice(0, 5) : String(item[name] ?? "");
+        if (item) {
+            input.value = type === "time" ? item[name].slice(0, 5) : String(item[name] ?? "");
+        }
         container.append(caption, input);
         fields.append(container);
     }
@@ -241,25 +439,40 @@ function openAcademicEditor(item) {
 }
 
 async function deleteAcademicItem(item, button) {
-    if (!confirm("Eliminar este registro? No se podra eliminar si esta relacionado con otros datos.")) return;
+    if (!confirm("Eliminar este registro? No se podra eliminar si esta relacionado con otros datos.")) {
+        return;
+    }
     button.disabled = true;
     try {
         const result = await appRequests.send(`/${academicSelect.value}/Delete?id=${item.id}`, "POST");
         showActionMessage(result.message);
         await loadAcademicModule();
-    } catch (error) { showActionMessage(error.message, true); }
-    finally { button.disabled = false; }
+    } catch (error) {
+        showActionMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+    }
 }
-
-academicForm.addEventListener("submit", async event => {
+academicForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const button = document.querySelector("#academic-save");
     button.disabled = true;
-    const data = { id: Number(academicForm.elements.id.value) || null };
-    for (const [name, label, type] of academicModules[academicSelect.value].fields) {
+    const data = {
+        id: Number(academicForm.elements.id.value) || null
+    };
+    for (const field of academicModules[academicSelect.value].fields) {
+        const name = field.name;
+        const type = field.type;
         const value = academicForm.elements.namedItem(name).value;
-        data[name] = type === "boolean" ? value === "true" : type === "time" ? value + ":00"
-            : type === "number" || type === "day" || academicReferences[type] ? Number(value) : value;
+        if (type === "boolean") {
+            data[name] = value === "true";
+        } else if (type === "time") {
+            data[name] = value + ":00";
+        } else if (type === "number" || type === "day" || academicReferences[type]) {
+            data[name] = Number(value);
+        } else {
+            data[name] = value;
+        }
     }
     try {
         const result = await appRequests.send(`/${academicSelect.value}/${data.id ? "Update" : "Create"}`, "POST", data);
@@ -270,11 +483,16 @@ academicForm.addEventListener("submit", async event => {
         const alert = document.querySelector("#academic-error");
         alert.textContent = error.message;
         alert.classList.remove("d-none");
-    } finally { button.disabled = false; }
+    } finally {
+        button.disabled = false;
+    }
 });
-
 document.querySelector("#academic-new").addEventListener("click", () => openAcademicEditor());
-document.querySelector("#academic-search").addEventListener("input", () => { if (!academicLoading) renderAcademicRows(); });
+document.querySelector("#academic-search").addEventListener("input", () => {
+    if (!academicLoading) {
+        renderAcademicRows();
+    }
+});
 academicSelect.addEventListener("change", () => {
     document.querySelector("#academic-search").value = "";
     loadAcademicModule();

@@ -1,53 +1,64 @@
-@{ ViewData["Title"] = "Gestion academica"; }
+﻿@{
+    ViewData["Title"] = "Gestion academica";
+}
 <h1 class="h3">Gestion academica</h1>
 <p class="text-muted">Prepara los datos, planes y grupos necesarios para abrir la matricula.</p>
-<div class="card mb-4"><div class="card-body">
-    <label class="form-label" for="academic-module">Apartado</label>
-    <select id="academic-module" class="form-select">
-        <option value="Facultad">Facultades</option>
-        <option value="Carrera">Carreras</option>
-        <option value="Sede">Sedes</option>
-        <option value="Aula">Aulas</option>
-        <option value="Docente">Docentes</option>
-        <option value="PeriodoAcademico">Periodos</option>
-        <option value="PlanEstudio">Planes de estudio</option>
-        <option value="DetallePlanEstudio">Cursos del plan</option>
-        <option value="OfertaAcademica">Oferta academica</option>
-        <option value="DetalleOfertaAcademica">Grupos</option>
-        <option value="DetalleHorario">Horarios</option>
-    </select>
-</div></div>
-<div class="card"><div class="card-body">
-    <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
-        <h2 id="academic-title" class="h5 mb-0">Facultades</h2>
-        <button class="btn btn-primary" id="academic-new" disabled>Nuevo registro</button>
+<div class="card mb-4">
+    <div class="card-body">
+        <label class="form-label" for="academic-module">Apartado</label>
+        <select id="academic-module" class="form-select">
+            <option value="Facultad">Facultades</option>
+            <option value="Carrera">Carreras</option>
+            <option value="Sede">Sedes</option>
+            <option value="Aula">Aulas</option>
+            <option value="Docente">Docentes</option>
+            <option value="PeriodoAcademico">Periodos</option>
+            <option value="PlanEstudio">Planes de estudio</option>
+            <option value="DetallePlanEstudio">Cursos del plan</option>
+            <option value="OfertaAcademica">Oferta academica</option>
+            <option value="DetalleOfertaAcademica">Grupos</option>
+            <option value="DetalleHorario">Horarios</option>
+        </select>
     </div>
-    <label for="academic-search" class="form-label">Buscar en el apartado</label>
-    <input id="academic-search" class="form-control mb-3" type="search" placeholder="Escribe un nombre o dato" />
-    <p id="academic-status" class="text-muted" role="status" aria-live="polite">Cargando registros...</p>
-    <div class="table-responsive"><table class="table align-middle">
-        <caption class="visually-hidden">Registros del apartado academico seleccionado</caption>
-        <thead id="academic-head"></thead><tbody id="academic-body"></tbody>
-    </table></div>
-</div></div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+            <h2 id="academic-title" class="h5 mb-0">Facultades</h2>
+            <button class="btn btn-primary" id="academic-new" disabled>Nuevo registro</button>
+        </div>
+        <label for="academic-search" class="form-label">Buscar en el apartado</label>
+        <input id="academic-search" class="form-control mb-3" type="search" placeholder="Escribe un nombre o dato" />
+        <p id="academic-status" class="text-muted" role="status" aria-live="polite">Cargando registros...</p>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <caption class="visually-hidden">Registros del apartado academico seleccionado</caption>
+                <thead id="academic-head"></thead>
+                <tbody id="academic-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="academic-modal" tabindex="-1" aria-labelledby="academic-editor-title" aria-hidden="true">
-    <div class="modal-dialog"><div class="modal-content">
-        <form id="academic-form">
-            <div class="modal-header">
-                <h2 class="modal-title fs-5" id="academic-editor-title">Nuevo registro</h2>
-                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger d-none" id="academic-error" role="alert"></div>
-                <input type="hidden" name="id" />
-                <div id="academic-fields"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
-                <button class="btn btn-primary" id="academic-save" type="submit">Guardar</button>
-            </div>
-        </form>
-    </div></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="academic-form">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="academic-editor-title">Nuevo registro</h2>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger d-none" id="academic-error" role="alert"></div>
+                    <input type="hidden" name="id" />
+                    <div id="academic-fields"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" id="academic-save" type="submit">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @section Scripts {
     <script src="~/js/academico.js" asp-append-version="true"></script>

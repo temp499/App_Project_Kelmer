@@ -184,8 +184,10 @@ namespace App_Proyecto.Repositories
             {
                 return (null, "Otra solicitud esta usando los mismos cupos, vuelve a intentarlo");
             }
-            catch (InvalidOperationException error) when (error.InnerException is DbUpdateException updateError
-                && updateError.InnerException is SqlException sqlError && sqlError.Number == 1205)
+            catch (InvalidOperationException error) when (
+                (error.InnerException is SqlException sqlError && sqlError.Number == 1205)
+                || (error.InnerException is DbUpdateException updateError
+                    && updateError.InnerException is SqlException sqlUpdate && sqlUpdate.Number == 1205))
             {
                 foreach (var detalle in matricula.Detalles.ToArray())
                     context.Entry(detalle).State = EntityState.Detached;

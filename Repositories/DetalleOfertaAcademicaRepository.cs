@@ -1,4 +1,4 @@
-using App_Proyecto.Data;
+﻿using App_Proyecto.Data;
 using App_Proyecto.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -24,14 +24,35 @@ namespace App_Proyecto.Repositories
 
         public async Task<bool> CreateAsync(DetalleOfertaAcademica item)
         {
-            context.DetallesOfertaAcademica.Add(item);
+            await using var transaction = await context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
             try
             {
+                var planId = await context.OfertasAcademicas.Where(oferta => oferta.Id == item.OfertaAcademicaId)
+                    .Select(oferta => (int?)oferta.PlanEstudioId).SingleOrDefaultAsync();
+                if (!planId.HasValue || !await context.DetallesPlanEstudio.AnyAsync(detalle =>
+                    detalle.PlanEstudioId == planId.Value && detalle.CursoId == item.CursoId))
+                    return false;
+
+                context.DetallesOfertaAcademica.Add(item);
                 await context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return true;
             }
             catch (DbUpdateException error) when (
-                error.InnerException is SqlException sqlError && (sqlError.Number == 547 || sqlError.Number == 2601 || sqlError.Number == 2627))
+                error.InnerException is SqlException sqlError && (sqlError.Number == 547 || sqlError.Number == 2601 || sqlError.Number == 2627 || sqlError.Number == 1205))
+            {
+                context.Entry(item).State = EntityState.Detached;
+                return false;
+            }
+            catch (SqlException error) when (error.Number == 1205)
+            {
+                context.Entry(item).State = EntityState.Detached;
+                return false;
+            }
+            catch (InvalidOperationException error) when (
+                (error.InnerException is SqlException sqlError && sqlError.Number == 1205)
+                || (error.InnerException is DbUpdateException updateError
+                    && updateError.InnerException is SqlException sqlUpdate && sqlUpdate.Number == 1205))
             {
                 context.Entry(item).State = EntityState.Detached;
                 return false;
@@ -45,6 +66,12 @@ namespace App_Proyecto.Repositories
             {
                 var actual = await context.DetallesOfertaAcademica.AsNoTracking().SingleOrDefaultAsync(value => value.Id == item.Id);
                 if (actual == null)
+                    return false;
+
+                var planId = await context.OfertasAcademicas.Where(oferta => oferta.Id == item.OfertaAcademicaId)
+                    .Select(oferta => (int?)oferta.PlanEstudioId).SingleOrDefaultAsync();
+                if (!planId.HasValue || !await context.DetallesPlanEstudio.AnyAsync(detalle =>
+                    detalle.PlanEstudioId == planId.Value && detalle.CursoId == item.CursoId))
                     return false;
 
                 var inscritos = await context.DetallesMatricula
@@ -73,6 +100,14 @@ namespace App_Proyecto.Repositories
                 return false;
             }
             catch (SqlException error) when (error.Number == 1205)
+            {
+                context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
+            catch (InvalidOperationException error) when (
+                (error.InnerException is SqlException sqlError && sqlError.Number == 1205)
+                || (error.InnerException is DbUpdateException updateError
+                    && updateError.InnerException is SqlException sqlUpdate && sqlUpdate.Number == 1205))
             {
                 context.Entry(item).State = EntityState.Unchanged;
                 return false;

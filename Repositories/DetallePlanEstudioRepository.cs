@@ -1,4 +1,4 @@
-using App_Proyecto.Data;
+﻿using App_Proyecto.Data;
 using App_Proyecto.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +68,14 @@ namespace App_Proyecto.Repositories
                 context.Entry(item).State = EntityState.Unchanged;
                 return false;
             }
+            catch (InvalidOperationException error) when (
+                (error.InnerException is SqlException sqlError && sqlError.Number == 1205)
+                || (error.InnerException is DbUpdateException updateError
+                    && updateError.InnerException is SqlException sqlUpdate && sqlUpdate.Number == 1205))
+            {
+                context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -97,6 +105,15 @@ namespace App_Proyecto.Repositories
                 return false;
             }
             catch (SqlException error) when (error.Number == 1205)
+            {
+                if (item != null)
+                    context.Entry(item).State = EntityState.Unchanged;
+                return false;
+            }
+            catch (InvalidOperationException error) when (
+                (error.InnerException is SqlException sqlError && sqlError.Number == 1205)
+                || (error.InnerException is DbUpdateException updateError
+                    && updateError.InnerException is SqlException sqlUpdate && sqlUpdate.Number == 1205))
             {
                 if (item != null)
                     context.Entry(item).State = EntityState.Unchanged;

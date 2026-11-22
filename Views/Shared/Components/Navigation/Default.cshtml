@@ -1,5 +1,9 @@
 @model IReadOnlyList<string>
 @inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
+@if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin"))
+{
+    <li class="nav-item"><a class="nav-link" asp-controller="MiMatricula" asp-action="Index">Mi matricula</a></li>
+}
 @if (Model.Contains("estudiante.ver", StringComparer.OrdinalIgnoreCase))
 {
     <li class="nav-item"><a class="nav-link" asp-controller="Estudiante" asp-action="Index">Estudiantes</a></li>

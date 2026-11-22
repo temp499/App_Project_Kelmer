@@ -13,6 +13,12 @@ namespace App_Proyecto.Controllers
         IPeriodoAcademicoService periodos) : Controller
     {
         [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Oferta(int periodoId, CancellationToken cancellationToken)
         {
             if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuarioId) || usuarioId <= 0)

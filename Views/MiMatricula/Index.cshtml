@@ -1,0 +1,46 @@
+@{ ViewData["Title"] = "Mi matricula"; }
+<div class="mb-4">
+    <h1 class="h3">Mi matricula</h1>
+    <p class="text-muted">Selecciona los grupos de tu carrera y revisa tus cursos matriculados.</p>
+</div>
+<div class="card mb-4"><div class="card-body">
+    <h2 class="h5">Datos del estudiante</h2>
+    <p id="student-profile" class="text-muted mb-0" aria-live="polite">Cargando tus datos...</p>
+</div></div>
+<form id="enrollment-form">
+    <fieldset id="enrollment-fields" disabled>
+        <div class="card mb-4"><div class="card-body">
+            <h2 class="h5">Grupos disponibles</h2>
+            <div class="mb-3">
+                <label for="periodo" class="form-label">Periodo de matricula</label>
+                <select id="periodo" class="form-select" required><option value="">Selecciona un periodo</option></select>
+            </div>
+            <p id="offer-status" class="text-muted" role="status" aria-live="polite">Selecciona un periodo para consultar los grupos.</p>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <caption class="visually-hidden">Grupos de la carrera disponibles para matricular</caption>
+                    <thead><tr><th scope="col">Elegir</th><th scope="col">Curso y grupo</th><th scope="col">Docente y sede</th><th scope="col">Horario y aula</th><th scope="col">Cupos</th></tr></thead>
+                    <tbody id="available-groups"></tbody>
+                </table>
+            </div>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3">
+                <span id="selected-count" aria-live="polite">0 grupos seleccionados</span>
+                <button id="enroll-button" class="btn btn-primary" type="submit" disabled>Confirmar matricula</button>
+            </div>
+        </div></div>
+    </fieldset>
+</form>
+<section class="card"><div class="card-body">
+    <h2 class="h5">Mis matriculas</h2>
+    <p id="history-status" class="text-muted" role="status">Cargando tu historial...</p>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <caption class="visually-hidden">Historial de matriculas de tu cuenta</caption>
+            <thead><tr><th scope="col">Matricula</th><th scope="col">Periodo</th><th scope="col">Cursos y grupos</th><th scope="col">Horarios</th></tr></thead>
+            <tbody id="enrollment-history"></tbody>
+        </table>
+    </div>
+</div></section>
+@section Scripts {
+    <script src="~/js/mi-matricula.js" asp-append-version="true"></script>
+}

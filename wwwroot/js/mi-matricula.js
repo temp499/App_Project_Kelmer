@@ -71,7 +71,10 @@ async function loadEnrollmentOffer() {
             input.dataset.course = group.cursoId;
             input.disabled = group.disponibles <= 0 || group.horarios.length === 0;
             input.setAttribute("aria-label", `Elegir ${group.cursoNombre}, grupo ${group.grupo}`);
-            cell.append(input);
+            const label = document.createElement("label");
+            label.className = "group-choice";
+            label.append(input);
+            cell.append(label);
             enrollmentCell(row, `${group.cursoNombre} - ${group.grupo}`);
             enrollmentCell(row, `${group.docente} - ${group.sede}`);
             enrollmentCell(row, enrollmentSchedule(group.horarios) || "Sin horario disponible");

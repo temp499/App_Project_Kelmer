@@ -1,5 +1,27 @@
-@{ ViewData["Title"] = "Inicio"; }
-<div class="p-4 p-md-5 bg-light border rounded">
-    <h1 class="h2">Sistema de gestión académica</h1>
-    <p class="text-muted">Consulta cursos y estudiantes desde el menú de navegación.</p>
+﻿@{ ViewData["Title"] = "Inicio"; }
+<div class="mb-4">
+    <h1 class="h3">Inicio</h1>
+    <p class="text-muted">Bienvenido, @User.Identity?.Name</p>
+</div>
+<section class="welcome-panel">
+    <h2 class="h5">Sistema de matricula universitaria</h2>
+    <p class="text-muted mb-0">Consulta tus cursos y organiza la informacion academica desde el menu.</p>
+</section>
+<div class="row g-3">
+    @if (User.HasPermission("estudiante.ver"))
+    {
+        <div class="col-md-6"><div class="card h-100"><div class="card-body">
+            <h2 class="h5">Estudiantes</h2>
+            <p class="text-muted">Consulta y actualiza los datos de los estudiantes.</p>
+            <a class="btn btn-outline-primary" asp-controller="Estudiante" asp-action="Index">Ver estudiantes</a>
+        </div></div></div>
+    }
+    @if (User.HasPermission("curso.ver"))
+    {
+        <div class="col-md-6"><div class="card h-100"><div class="card-body">
+            <h2 class="h5">Cursos</h2>
+            <p class="text-muted">Revisa los cursos registrados en la universidad.</p>
+            <a class="btn btn-outline-primary" asp-controller="Curso" asp-action="Index">Ver cursos</a>
+        </div></div></div>
+    }
 </div>

@@ -1,68 +1,79 @@
+﻿@{
+    var authenticated = User.Identity?.IsAuthenticated == true;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - App Proyecto</title>
+    <title>@ViewData["Title"] - Matricula</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom mb-4">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">App Proyecto</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Abrir menú">
+<body class="@(authenticated ? "workspace" : "access-page")" data-controller="@currentController">
+    <a class="skip-link" href="#main-content">Ir al contenido</a>
+    <nav class="sidebar navbar navbar-expand-md" aria-label="Menu principal">
+        <div class="container-fluid align-items-start">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark" aria-hidden="true">M</span>
+                <span>Matricula<small>GESTION UNIVERSITARIA</small></span>
+            </a>
+            @if (authenticated)
+            {
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Abrir menu">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div id="navigation" class="navbar-collapse collapse">
-                    <ul class="navbar-nav me-auto">
+                    <p class="nav-label">PRINCIPAL</p>
+                    <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacidad</a></li>
                         @await Component.InvokeAsync("Navigation")
                     </ul>
-                    <div class="d-flex flex-wrap gap-2 py-1">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <a class="btn btn-sm btn-outline-secondary" asp-controller="Auth" asp-action="ChangePassword">Cambiar contraseña</a>
-                        }
-                        else
-                        {
-                            <a class="btn btn-sm btn-outline-primary" asp-controller="Auth" asp-action="Login">Iniciar sesión</a>
-                        }
-                        @if (User.Identity?.IsAuthenticated == true || Context.Request.Cookies.ContainsKey(AuthSessionCookies.Refresh))
-                        {
+                    <div class="sidebar-bottom"><a asp-controller="Home" asp-action="Privacy">Privacidad</a></div>
+                </div>
+            }
+        </div>
+    </nav>
+    <div class="workspace-content">
+        @if (authenticated)
+        {
+            <header class="workspace-header">
+                <span class="text-muted">Espacio de trabajo / <strong>@ViewData["Title"]</strong></span>
+                <div class="account-menu">
+                    <span class="account-name">@User.Identity?.Name<small>@(User.IsInRole("Admin") ? "Administrador" : "Estudiante")</small></span>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Mi cuenta</button>
+                        <div class="dropdown-menu dropdown-menu-end p-2">
+                            <a class="dropdown-item" asp-controller="Auth" asp-action="ChangePassword">Cambiar clave</a>
                             <form asp-controller="Auth" asp-action="RefreshToken" method="post" data-ajax data-reload>
-                                <button class="btn btn-sm btn-outline-primary" type="submit">Actualizar sesión</button>
+                                <button class="dropdown-item" type="submit">Actualizar sesion</button>
                             </form>
-                            <form asp-controller="Auth" asp-action="Logout" method="post" data-ajax data-redirect="@Url.Action("Index", "Home")" data-confirm="¿Cerrar la sesión?">
-                                <button class="btn btn-sm btn-outline-danger" type="submit">Cerrar sesión</button>
+                            <form asp-controller="Auth" asp-action="Logout" method="post" data-ajax data-redirect="@Url.Action("Index", "Home")" data-confirm="Cerrar la sesion?">
+                                <button class="dropdown-item text-danger" type="submit">Cerrar sesion</button>
                             </form>
-                        }
+                        </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div hidden id="request-token">@Html.AntiForgeryToken()</div>
-    <main class="container pb-4">
-        <div id="action-message" class="alert d-none" role="status"></div>
-        @if (TempData["Success"] is string success)
-        {
-            <div class="alert alert-success" role="status">@success</div>
+            </header>
         }
-        @if (TempData["Error"] is string error)
-        {
-            <div class="alert alert-danger" role="alert">@error</div>
-        }
-        @RenderBody()
-    </main>
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            App Proyecto · <a asp-controller="Home" asp-action="Privacy">Privacidad</a>
-        </div>
-    </footer>
+        <div hidden id="request-token">@Html.AntiForgeryToken()</div>
+        <main id="main-content" class="page-content">
+            <div id="action-message" class="alert d-none" role="status" aria-live="polite"></div>
+            @if (TempData["Success"] is string success)
+            {
+                <div class="alert alert-success" role="status">@success</div>
+            }
+            @if (TempData["Error"] is string error)
+            {
+                <div class="alert alert-danger" role="alert">@error</div>
+            }
+            @RenderBody()
+        </main>
+        <footer class="workspace-footer">Matricula - Sistema universitario</footer>
+    </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
